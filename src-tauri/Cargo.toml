@@ -35,6 +35,7 @@ walkdir = "2"
 globset = "0.4"
 regex = "1"
 urlencoding = "2"
+portable-pty = "0.9"
 
 [profile.release]
 opt-level = 3

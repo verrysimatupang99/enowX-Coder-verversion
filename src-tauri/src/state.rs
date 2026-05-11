@@ -6,6 +6,7 @@ use tokio::sync::oneshot;
 use tokio_util::sync::CancellationToken;
 
 use crate::error::AppResult;
+use crate::services::terminal_service::TerminalService;
 
 #[derive(Clone)]
 pub struct PermissionState {
@@ -88,6 +89,7 @@ pub struct AppState {
     pub db: Arc<SqlitePool>,
     pub permissions: PermissionState,
     pub cancellations: CancellationRegistry,
+    terminal_service: Arc<TerminalService>,
 }
 
 impl AppState {
@@ -105,10 +107,15 @@ impl AppState {
             db: Arc::new(pool),
             permissions: PermissionState::new(),
             cancellations: CancellationRegistry::new(),
+            terminal_service: Arc::new(TerminalService::new()),
         })
     }
 
     pub fn pool(&self) -> &SqlitePool {
         self.db.as_ref()
+    }
+
+    pub fn terminal_service(&self) -> &TerminalService {
+        self.terminal_service.as_ref()
     }
 }

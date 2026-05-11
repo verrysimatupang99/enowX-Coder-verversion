@@ -54,7 +54,11 @@ pub fn run() -> Result<(), AppError> {
             commands::agent::list_agent_configs,
             commands::agent::agent_permission_response,
             commands::file::list_files,
-            commands::file::read_file_content
+            commands::file::read_file_content,
+            commands::terminal::spawn_terminal,
+            commands::terminal::write_terminal,
+            commands::terminal::close_terminal,
+            commands::terminal::resize_terminal
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();
