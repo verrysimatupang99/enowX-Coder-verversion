@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle } from '@phosphor-icons/react';
+import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { AGENT_LABELS } from '@/types';
+import { TerminalPanel } from '@/components/ide/TerminalPanel';
+import { GitPanel } from '@/components/ide/GitPanel';
+import { CodePreview } from '@/components/ide/CodePreview';
 
-type Tab = 'agents' | 'skills' | 'metrics';
+type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview';
 
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
@@ -14,6 +17,9 @@ export const RightSidebar: React.FC = () => {
 
   const tabs = [
     { id: 'agents' as Tab, icon: Robot, label: 'Agents' },
+    { id: 'terminal' as Tab, icon: TerminalWindow, label: 'Terminal' },
+    { id: 'git' as Tab, icon: GitBranch, label: 'Git' },
+    { id: 'preview' as Tab, icon: FileCode, label: 'Preview' },
     { id: 'skills' as Tab, icon: Books, label: 'Skills' },
     { id: 'metrics' as Tab, icon: ChartBar, label: 'Metrics' },
   ];
@@ -49,6 +55,27 @@ export const RightSidebar: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+        {activeTab === 'terminal' && (
+          <div className="h-full -m-4">
+            <TerminalPanel sessionId="main-terminal" workingDir={undefined} />
+          </div>
+        )}
+
+        {activeTab === 'git' && (
+          <div className="h-full -m-4">
+            <GitPanel repoPath="/home/mrtrickster99/Documents/Coding/enowX-Coder-verversion" />
+          </div>
+        )}
+
+        {activeTab === 'preview' && (
+          <div className="h-full -m-4">
+            <CodePreview
+              content="// Select a file from the explorer to preview"
+              language="typescript"
+            />
+          </div>
+        )}
+
         {activeTab === 'agents' && (
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">

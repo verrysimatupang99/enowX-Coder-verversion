@@ -58,7 +58,11 @@ pub fn run() -> Result<(), AppError> {
             commands::terminal::spawn_terminal,
             commands::terminal::write_terminal,
             commands::terminal::close_terminal,
-            commands::terminal::resize_terminal
+            commands::terminal::resize_terminal,
+            commands::git::git_status,
+            commands::git::git_list_branches,
+            commands::git::git_checkout_branch,
+            commands::git::git_commit
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();
