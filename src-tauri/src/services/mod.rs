@@ -7,6 +7,7 @@ pub mod model_service;
 pub mod project_service;
 pub mod provider_model_service;
 pub mod provider_service;
+pub mod search_service;
 pub mod session_service;
 pub mod terminal_service;
 

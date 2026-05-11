@@ -1,15 +1,16 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode } from '@phosphor-icons/react';
+import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { AGENT_LABELS } from '@/types';
 import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
+import { SearchPanel } from '@/components/ide/SearchPanel';
 
 const CodePreview = lazy(() => import('@/components/ide/CodePreview').then(m => ({ default: m.CodePreview })));
 
-type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview';
+type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 'search';
 
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
@@ -20,6 +21,7 @@ export const RightSidebar: React.FC = () => {
     { id: 'agents' as Tab, icon: Robot, label: 'Agents' },
     { id: 'terminal' as Tab, icon: TerminalWindow, label: 'Terminal' },
     { id: 'git' as Tab, icon: GitBranch, label: 'Git' },
+    { id: 'search' as Tab, icon: MagnifyingGlass, label: 'Search' },
     { id: 'preview' as Tab, icon: FileCode, label: 'Preview' },
     { id: 'skills' as Tab, icon: Books, label: 'Skills' },
     { id: 'metrics' as Tab, icon: ChartBar, label: 'Metrics' },
@@ -65,6 +67,15 @@ export const RightSidebar: React.FC = () => {
         {activeTab === 'git' && (
           <div className="h-full -m-4">
             <GitPanel repoPath="/home/mrtrickster99/Documents/Coding/enowX-Coder-verversion" />
+          </div>
+        )}
+
+        {activeTab === 'search' && (
+          <div className="h-full -m-4">
+            <SearchPanel
+              rootPath="/home/mrtrickster99/Documents/Coding/enowX-Coder-verversion"
+              onClose={() => setActiveTab('agents')}
+            />
           </div>
         )}
 

@@ -62,7 +62,10 @@ pub fn run() -> Result<(), AppError> {
             commands::git::git_status,
             commands::git::git_list_branches,
             commands::git::git_checkout_branch,
-            commands::git::git_commit
+            commands::git::git_commit,
+            commands::search::search_in_files,
+            commands::search::replace_in_file,
+            commands::search::replace_in_files
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

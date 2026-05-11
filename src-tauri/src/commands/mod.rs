@@ -5,5 +5,6 @@ pub mod file;
 pub mod git;
 pub mod project;
 pub mod provider;
+pub mod search;
 pub mod session;
 pub mod terminal;
