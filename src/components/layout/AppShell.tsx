@@ -403,14 +403,30 @@ export const AppShell: React.FC = () => {
     // If we already have an active session, just return it
     if (currentSessionId) {
       const proj = currentProjects.find(p => p.id === currentProjectId);
-      return { sessionId: currentSessionId, projectPath: proj?.path ?? '' };
+      const projectPath = proj?.path;
+
+      // If project has no path, return null to force user to select folder
+      if (!projectPath) {
+        alert('Please open a folder first using the "Open folder" button in the left sidebar.');
+        return null;
+      }
+
+      return { sessionId: currentSessionId, projectPath };
     }
 
     try {
       // If no project exists, don't auto-create - let user select folder via ProjectSwitcher
       if (!currentProjectId || currentProjects.length === 0) {
-        // Return null to indicate no session available yet
-        // User must use "Open folder" button to create first project
+        alert('Please open a folder first using the "Open folder" button in the left sidebar.');
+        return null;
+      }
+
+      const proj = currentProjects.find(p => p.id === currentProjectId);
+      const projectPath = proj?.path;
+
+      // If project has no path, return null
+      if (!projectPath) {
+        alert('This project has no folder path. Please open a folder first.');
         return null;
       }
 
@@ -419,7 +435,7 @@ export const AppShell: React.FC = () => {
       addSession(session);
       justCreatedSessionRef.current.add(session.id);
       setActiveSessionId(session.id);
-      return { sessionId: session.id, projectPath: currentProjects.find(p => p.id === currentProjectId)?.path ?? '' };
+      return { sessionId: session.id, projectPath };
     } catch (err) {
       console.error('Failed to auto-create session:', err);
       return null;
