@@ -366,6 +366,21 @@ impl AgentRunner {
         ctx: &InternalRunContext<'_>,
         token_sink: &S,
     ) -> AppResult<String> {
+        // Validate project path before creating tool executor
+        if ctx.project_path.is_empty() {
+            return Err(AppError::Validation(
+                "Project path is required. Please open a folder first.".to_string(),
+            ));
+        }
+
+        let project_path_buf = PathBuf::from(ctx.project_path);
+        if !project_path_buf.exists() {
+            return Err(AppError::Validation(format!(
+                "Project path does not exist: {}",
+                ctx.project_path
+            )));
+        }
+
         if ctx.parent_agent_run_id.is_none() {
             let message_id = Uuid::new_v4().to_string();
             let created_at = now_rfc3339();
