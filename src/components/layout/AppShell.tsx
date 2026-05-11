@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { invoke, Channel } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
@@ -15,9 +15,10 @@ import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { SettingsModal } from '@/components/settings/SettingsModal';
-import { ExcalidrawCanvas } from '@/components/canvas/ExcalidrawCanvas';
 import { AgentConfig, AgentRunWithTools, AgentType, Message, PermissionRequest, Project, Provider, ProviderModelConfig, Session, ToolCall } from '@/types';
 import { cn } from '@/lib/utils';
+
+const ExcalidrawCanvas = lazy(() => import('@/components/canvas/ExcalidrawCanvas').then(m => ({ default: m.ExcalidrawCanvas })));
 
 export const AppShell: React.FC = () => {
   const { addMessage, appendStreamToken, setStreaming, clearStreaming, setMessages } = useChatStore();
@@ -589,7 +590,9 @@ export const AppShell: React.FC = () => {
             <ChatInputBar ref={chatInputRef} onSend={handleSend} onStop={handleStop} />
           </>
         ) : (
-          <ExcalidrawCanvas />
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-[var(--text-muted)]">Loading canvas...</div>}>
+            <ExcalidrawCanvas />
+          </Suspense>
         )}
       </main>
 

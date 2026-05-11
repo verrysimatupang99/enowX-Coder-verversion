@@ -1,5 +1,5 @@
 use crate::error::AppError;
-use portable_pty::{CommandBuilder, NativePtySystem, PtySize, PtySystem};
+use portable_pty::{CommandBuilder, MasterPty, NativePtySystem, PtySize, PtySystem};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Write};
 use std::sync::{Arc, Mutex};
@@ -11,6 +11,7 @@ pub struct TerminalService {
 
 struct TerminalSession {
     writer: Box<dyn Write + Send>,
+    master: Box<dyn MasterPty + Send>,
     _reader_handle: std::thread::JoinHandle<()>,
 }
 
@@ -49,13 +50,13 @@ impl TerminalService {
             .spawn_command(cmd)
             .map_err(|e| AppError::Internal(format!("Failed to spawn shell: {}", e)))?;
 
-        let reader = pair
-            .master
+        let master = pair.master;
+        
+        let reader = master
             .try_clone_reader()
             .map_err(|e| AppError::Internal(format!("Failed to clone reader: {}", e)))?;
 
-        let writer = pair
-            .master
+        let writer = master
             .take_writer()
             .map_err(|e| AppError::Internal(format!("Failed to take writer: {}", e)))?;
 
@@ -67,7 +68,7 @@ impl TerminalService {
             loop {
                 line.clear();
                 match buf_reader.read_line(&mut line) {
-                    Ok(0) => break, // EOF
+                    Ok(0) => break,
                     Ok(_) => {
                         let _ = app_handle
                             .emit(&format!("terminal-output:{}", session_id_clone), &line);
@@ -76,13 +77,13 @@ impl TerminalService {
                 }
             }
 
-            // Wait for child to exit
             let _ = child.wait();
             let _ = app_handle.emit(&format!("terminal-exit:{}", session_id_clone), ());
         });
 
         let session = TerminalSession {
             writer,
+            master,
             _reader_handle: reader_handle,
         };
 
@@ -131,12 +132,29 @@ impl TerminalService {
 
     pub fn resize_terminal(
         &self,
-        _session_id: &str,
-        _rows: u16,
-        _cols: u16,
+        session_id: &str,
+        rows: u16,
+        cols: u16,
     ) -> Result<(), AppError> {
-        // PTY resize not exposed in current API — would need master.resize()
-        // Skipping for now
+        let mut sessions = self
+            .sessions
+            .lock()
+            .map_err(|_| AppError::Internal("Lock poisoned".to_string()))?;
+
+        let session = sessions.get_mut(session_id).ok_or_else(|| {
+            AppError::NotFound(format!("Terminal session not found: {}", session_id))
+        })?;
+
+        session
+            .master
+            .resize(PtySize {
+                rows,
+                cols,
+                pixel_width: 0,
+                pixel_height: 0,
+            })
+            .map_err(|e| AppError::Internal(format!("Failed to resize PTY: {}", e)))?;
+
         Ok(())
     }
 }

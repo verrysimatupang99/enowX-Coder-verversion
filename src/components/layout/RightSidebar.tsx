@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
@@ -6,7 +6,8 @@ import { useAgentStore } from '@/stores/useAgentStore';
 import { AGENT_LABELS } from '@/types';
 import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
-import { CodePreview } from '@/components/ide/CodePreview';
+
+const CodePreview = lazy(() => import('@/components/ide/CodePreview').then(m => ({ default: m.CodePreview })));
 
 type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview';
 
@@ -69,10 +70,12 @@ export const RightSidebar: React.FC = () => {
 
         {activeTab === 'preview' && (
           <div className="h-full -m-4">
-            <CodePreview
-              content="// Select a file from the explorer to preview"
-              language="typescript"
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-full text-[var(--text-muted)]">Loading editor...</div>}>
+              <CodePreview
+                content="// Select a file from the explorer to preview"
+                language="typescript"
+              />
+            </Suspense>
           </div>
         )}
 

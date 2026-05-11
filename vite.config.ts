@@ -36,4 +36,16 @@ export default defineConfig(async () => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'monaco': ['@monaco-editor/react'],
+          'excalidraw': ['@excalidraw/excalidraw'],
+          'xterm': ['@xterm/xterm', '@xterm/addon-fit'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 }));
