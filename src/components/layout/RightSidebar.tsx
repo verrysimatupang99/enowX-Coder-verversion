@@ -3,6 +3,7 @@ import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, Circl
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
+import { useProjectStore } from '@/stores/useProjectStore';
 import { AGENT_LABELS } from '@/types';
 import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
@@ -16,6 +17,11 @@ export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
   const toggleRightSidebar = useUIStore((s) => s.toggleRightSidebar);
   const agentRuns = useAgentStore((s) => s.agentRuns);
+  const projects = useProjectStore((s) => s.projects);
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+
+  const activeProject = projects.find((p) => p.id === activeProjectId);
+  const projectPath = activeProject?.path || undefined;
 
   const tabs = [
     { id: 'agents' as Tab, icon: Robot, label: 'Agents' },
@@ -60,20 +66,20 @@ export const RightSidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
         {activeTab === 'terminal' && (
           <div className="h-full -m-4">
-            <TerminalPanel sessionId="main-terminal" workingDir={undefined} />
+            <TerminalPanel sessionId="main-terminal" workingDir={projectPath} />
           </div>
         )}
 
-        {activeTab === 'git' && (
+        {activeTab === 'git' && projectPath && (
           <div className="h-full -m-4">
-            <GitPanel repoPath="/home/mrtrickster99/Documents/Coding/enowX-Coder-verversion" />
+            <GitPanel repoPath={projectPath} />
           </div>
         )}
 
-        {activeTab === 'search' && (
+        {activeTab === 'search' && projectPath && (
           <div className="h-full -m-4">
             <SearchPanel
-              rootPath="/home/mrtrickster99/Documents/Coding/enowX-Coder-verversion"
+              rootPath={projectPath}
               onClose={() => setActiveTab('agents')}
             />
           </div>
