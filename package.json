@@ -1,7 +1,7 @@
 {
   "name": "enowx-coder",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -45,5 +45,12 @@
     "@vitejs/plugin-react": "^4.6.0",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
-  }
+  },
+  "description": "AI-Powered Development Environment - Desktop IDE with multi-agent system",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/verrysimatupang99/enowX-Coder-verversion.git"
+  },
+  "author": "Verry Simatupang",
+  "license": "Apache-2.0"
 }
