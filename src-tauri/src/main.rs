@@ -11,5 +11,7 @@ fn main() {
         }
     }
 
-    enowx_coder_lib::run();
+    if let Err(error) = enowx_coder_lib::run() {
+        eprintln!("Failed to run application: {error}");
+    }
 }
