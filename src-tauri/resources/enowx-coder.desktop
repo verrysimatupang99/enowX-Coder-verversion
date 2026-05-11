@@ -1,0 +1,13 @@
+[Desktop Entry]
+Categories=Development;Utility;IDE;
+Comment=enowX Coder - AI-Powered Development Environment
+Exec=env GDK_BACKEND=x11 enowx-coder %U
+StartupWMClass=enowx-coder
+Icon=enowx-coder
+Name=enowX Coder
+GenericName=AI Development Environment
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/enowx;
+Keywords=AI;Coding;Development;IDE;Agent;
+StartupNotify=true
