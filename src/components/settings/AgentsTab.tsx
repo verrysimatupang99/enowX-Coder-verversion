@@ -50,7 +50,7 @@ const AGENT_ICONS: Record<AgentType, React.ElementType> = {
 };
 
 export function AgentsTab() {
-  const { providers } = useSettingsStore();
+  const { providers, defaultProviderId, selectedModelId } = useSettingsStore();
   const { agentConfigs, setAgentConfigs, upsertAgentConfig } = useAgentStore();
   const [selectedAgent, setSelectedAgent] = useState<AgentType>('chat');
   const [loading, setLoading] = useState(false);
@@ -61,6 +61,11 @@ export function AgentsTab() {
   });
 
   const Icon = AGENT_ICONS[selectedAgent];
+
+  // Get default provider and model from chat settings
+  const defaultProvider = providers.find(p => p.id === defaultProviderId);
+  const chatProviderName = defaultProvider?.name || 'None';
+  const chatModelName = selectedModelId || defaultProvider?.model || 'None';
 
   useEffect(() => {
     async function loadConfigs() {
@@ -158,11 +163,34 @@ export function AgentsTab() {
         </div>
 
         <div className="p-6 space-y-6 flex-1 overflow-y-auto bg-[var(--surface-2)]/10">
+          {/* Show chat defaults info */}
+          <div className="p-4 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-[var(--accent)]"></div>
+              <h4 className="text-xs font-semibold text-[var(--text)] uppercase tracking-wider">
+                Chat Defaults
+              </h4>
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mb-3">
+              When no override is set, agents use these defaults from your chat settings:
+            </p>
+            <div className="flex items-center gap-4 text-xs">
+              <div>
+                <span className="text-[var(--text-subtle)]">Provider:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{chatProviderName}</span>
+              </div>
+              <div>
+                <span className="text-[var(--text-subtle)]">Model:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{chatModelName}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-medium text-[var(--text)] mb-1">Model Override</h3>
               <p className="text-xs text-[var(--text-muted)] mb-4">
-                Configure a specific provider and model for this agent. If left unconfigured, the agent will use the default provider and model.
+                Configure a specific provider and model for this agent. Leave empty to use chat defaults.
               </p>
             </div>
 
