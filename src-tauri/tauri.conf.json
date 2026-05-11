@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "enowx-coder",
-  "version": "0.1.0",
+  "productName": "enowX Coder",
+  "version": "0.2.0",
   "identifier": "com.enowdev.enowxcoder",
   "build": {
     "beforeDevCommand": "bun run dev",
@@ -13,8 +13,10 @@
     "windows": [
       {
         "title": "enowX Coder",
-        "width": 1280,
-        "height": 800,
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 768,
         "resizable": true
       }
     ],
@@ -32,8 +34,18 @@
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
+      "icons/256x256.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0"
+        ],
+        "desktopTemplate": "resources/enowx-coder.desktop"
+      }
+    }
   }
 }

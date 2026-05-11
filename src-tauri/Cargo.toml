@@ -1,8 +1,10 @@
 [package]
 name = "enowx-coder"
-version = "0.1.0"
-description = "AI orchestration desktop app"
+version = "0.2.0"
+description = "AI-Powered Development Environment"
 authors = ["enowdev"]
+license = "Apache-2.0"
+repository = "https://github.com/enowdev/enowX-Coder"
 edition = "2021"
 
 [lib]
@@ -39,10 +41,11 @@ portable-pty = "0.9"
 git2 = "0.20"
 
 [profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
-strip = true
+opt-level = "z"     # Optimize for size
+lto = true          # Link-time optimization
+codegen-units = 1   # Better optimization
+strip = true        # Strip symbols
+panic = "abort"     # Smaller binary
 
 [profile.dev]
 opt-level = 0
