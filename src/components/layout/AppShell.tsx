@@ -23,7 +23,6 @@ const ExcalidrawCanvas = lazy(() => import('@/components/canvas/ExcalidrawCanvas
 export const AppShell: React.FC = () => {
   const { addMessage, appendStreamToken, setStreaming, clearStreaming, setMessages } = useChatStore();
   const setProjects = useProjectStore((s) => s.setProjects);
-  const addProject = useProjectStore((s) => s.addProject);
   const setActiveProjectId = useProjectStore((s) => s.setActiveProjectId);
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
   const setSessions = useSessionStore((s) => s.setSessions);
@@ -408,18 +407,16 @@ export const AppShell: React.FC = () => {
     }
 
     try {
-      // If no project exists, create a default one
+      // If no project exists, don't auto-create - let user select folder via ProjectSwitcher
       if (!currentProjectId || currentProjects.length === 0) {
-        const project = await invoke<Project>('create_project', { name: 'Default', path: null });
-        addProject(project);
-        setActiveProjectId(project.id);
-        currentProjectId = project.id;
+        // Return null to indicate no session available yet
+        // User must use "Open folder" button to create first project
+        return null;
       }
 
-      // Create a new session
+      // Create a new session for existing project
       const session = await invoke<Session>('create_session', { projectId: currentProjectId, title: 'New Chat' });
       addSession(session);
-      // Mark as just-created so the effect doesn't wipe our optimistic messages
       justCreatedSessionRef.current.add(session.id);
       setActiveSessionId(session.id);
       return { sessionId: session.id, projectPath: currentProjects.find(p => p.id === currentProjectId)?.path ?? '' };
