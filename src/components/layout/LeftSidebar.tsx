@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
 import { SessionList } from '@/components/sidebar/SessionList';
-import { SidebarSimple, GearSix } from '@phosphor-icons/react';
+import { FileExplorer } from '@/components/ide/FileExplorer';
+import { SidebarSimple, GearSix, Files, ClockCounterClockwise } from '@phosphor-icons/react';
 import { useUIStore } from '@/stores/useUIStore';
+import { useProjectStore } from '@/stores/useProjectStore';
+import { cn } from '@/lib/utils';
+
+type SidebarTab = 'files' | 'history';
 
 export const LeftSidebar: React.FC = () => {
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
   const toggleLeftSidebar = useUIStore((s) => s.toggleLeftSidebar);
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+  const projects = useProjectStore((s) => s.projects);
+  const [activeTab, setActiveTab] = useState<SidebarTab>('files');
+
+  const activeProject = projects.find((p) => p.id === activeProjectId);
 
   return (
     <aside className="h-full bg-[var(--surface)] border-r border-[var(--border)] flex flex-col w-[var(--sidebar-width-left)]">
@@ -25,12 +35,40 @@ export const LeftSidebar: React.FC = () => {
         <ProjectSwitcher />
       </div>
 
-      <div className="px-4 pt-2 pb-1 text-[11px] uppercase tracking-widest font-semibold text-[var(--text-subtle)] select-none">
-        History
+      {/* Tab Switcher */}
+      <div className="flex border-b border-[var(--border)] px-3">
+        <button
+          onClick={() => setActiveTab('files')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors relative',
+            activeTab === 'files'
+              ? 'text-[var(--text)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--accent)]'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
+          )}
+        >
+          <Files size={16} />
+          <span>Files</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors relative',
+            activeTab === 'history'
+              ? 'text-[var(--text)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--accent)]'
+              : 'text-[var(--text-secondary)] hover:text-[var(--text)]'
+          )}
+        >
+          <ClockCounterClockwise size={16} />
+          <span>History</span>
+        </button>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-        <SessionList />
+        {activeTab === 'files' ? (
+          <FileExplorer projectPath={activeProject?.path ?? null} />
+        ) : (
+          <SessionList />
+        )}
       </div>
 
       <div className="p-3 border-t border-[var(--border)]">

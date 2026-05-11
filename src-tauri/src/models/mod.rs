@@ -1,16 +1,18 @@
 pub mod agent_config;
 pub mod agent_run;
+pub mod drawing;
+pub mod file_node;
 pub mod message;
 pub mod project;
 pub mod provider;
 pub mod provider_model;
 pub mod session;
-pub mod drawing;
 pub mod tool_call;
 
 pub use agent_config::AgentConfig;
-pub use drawing::Drawing;
 pub use agent_run::AgentRun;
+pub use drawing::Drawing;
+pub use file_node::FileNode;
 pub use message::Message;
 pub use project::Project;
 pub use provider::{fixed_base_url, Provider};

@@ -1,5 +1,5 @@
-pub mod commands;
 pub mod agents;
+pub mod commands;
 pub mod error;
 pub mod models;
 pub mod services;
@@ -52,7 +52,9 @@ pub fn run() -> Result<(), AppError> {
             commands::agent::get_agent_config,
             commands::agent::upsert_agent_config,
             commands::agent::list_agent_configs,
-            commands::agent::agent_permission_response
+            commands::agent::agent_permission_response,
+            commands::file::list_files,
+            commands::file::read_file_content
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();
