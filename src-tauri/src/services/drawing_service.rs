@@ -1,10 +1,7 @@
 use sqlx::SqlitePool;
 use uuid::Uuid;
 
-use crate::{
-    error::AppResult,
-    models::Drawing,
-};
+use crate::{error::AppResult, models::Drawing};
 
 use super::now_rfc3339;
 

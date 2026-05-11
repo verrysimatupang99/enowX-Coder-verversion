@@ -214,14 +214,12 @@ pub async fn get_provider_for_chat(
 
 pub async fn toggle_provider_enabled(db: &SqlitePool, id: &str, enabled: bool) -> AppResult<()> {
     let now = now_rfc3339();
-    let result = sqlx::query(
-        "UPDATE providers SET is_enabled = ?1, updated_at = ?2 WHERE id = ?3",
-    )
-    .bind(enabled)
-    .bind(&now)
-    .bind(id)
-    .execute(db)
-    .await?;
+    let result = sqlx::query("UPDATE providers SET is_enabled = ?1, updated_at = ?2 WHERE id = ?3")
+        .bind(enabled)
+        .bind(&now)
+        .bind(id)
+        .execute(db)
+        .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound(format!("Provider not found: {id}")));

@@ -119,7 +119,14 @@ async fn send_message_inner(
     let model = model_id.unwrap_or(&provider.model);
 
     let assistant_output = if provider.provider_type == "anthropic" {
-        send_anthropic(history, model, provider.api_key.as_deref(), &on_token, &cancel_token).await?
+        send_anthropic(
+            history,
+            model,
+            provider.api_key.as_deref(),
+            &on_token,
+            &cancel_token,
+        )
+        .await?
     } else {
         send_openai_compatible(
             &provider.base_url,
@@ -266,7 +273,10 @@ async fn send_anthropic(
         "Always output COMPLETE standalone HTML (DOCTYPE, html, head, body). No titles/prose inside widget — explanations go in your response text."
     );
     if let Some(sys) = system_msgs.first() {
-        payload["system"] = serde_json::json!(format!("{}\n\n{}", sys.content, system_instructions_anthropic));
+        payload["system"] = serde_json::json!(format!(
+            "{}\n\n{}",
+            sys.content, system_instructions_anthropic
+        ));
     } else {
         payload["system"] = serde_json::json!(system_instructions_anthropic);
     }
@@ -685,9 +695,8 @@ pub async fn generate_excalidraw(
     let provider = provider_service::get_provider_for_chat(db, provider_id).await?;
     let model = model_id.unwrap_or(&provider.model);
 
-    let mut messages = vec![
-        serde_json::json!({"role": "system", "content": EXCALIDRAW_SYSTEM_PROMPT}),
-    ];
+    let mut messages =
+        vec![serde_json::json!({"role": "system", "content": EXCALIDRAW_SYSTEM_PROMPT})];
 
     // If there are existing elements, include them so AI can edit
     if let Some(elements) = existing_elements {
@@ -704,7 +713,10 @@ pub async fn generate_excalidraw(
     messages.push(serde_json::json!({"role": "user", "content": prompt}));
 
     let client = reqwest::Client::new();
-    let endpoint = format!("{}/chat/completions", provider.base_url.trim_end_matches('/'));
+    let endpoint = format!(
+        "{}/chat/completions",
+        provider.base_url.trim_end_matches('/')
+    );
 
     let payload = serde_json::json!({
         "model": model,

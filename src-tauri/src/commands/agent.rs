@@ -3,7 +3,7 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, State};
 
 use crate::{
-    agents::runner::{AgentRunner, AgentRunParams},
+    agents::runner::{AgentRunParams, AgentRunner},
     error::AppResult,
     models::{AgentConfig, AgentRun, ToolCall},
     services::agent_service,
@@ -23,7 +23,9 @@ pub struct RunAgentRequest {
     pub flux_enabled: bool,
 }
 
-fn default_true() -> bool { true }
+fn default_true() -> bool {
+    true
+}
 
 #[tauri::command]
 pub async fn list_agent_runs(
@@ -48,7 +50,9 @@ pub async fn run_agent(
     request: RunAgentRequest,
     on_token: Channel<String>,
 ) -> AppResult<()> {
-    let cancel_token = state.cancellations.register(format!("agent:{}", request.session_id));
+    let cancel_token = state
+        .cancellations
+        .register(format!("agent:{}", request.session_id));
 
     let runner = AgentRunner::new(
         state.pool().clone(),
@@ -70,7 +74,9 @@ pub async fn run_agent(
     let result = runner.run(params, on_token).await;
 
     // Cleanup
-    state.cancellations.remove(&format!("agent:{}", request.session_id));
+    state
+        .cancellations
+        .remove(&format!("agent:{}", request.session_id));
 
     // Swallow Cancelled errors — they are expected when user stops generation
     match result {
@@ -125,7 +131,10 @@ pub async fn agent_permission_response(
     allowed: bool,
 ) -> AppResult<()> {
     if !state.permissions.respond(&agent_run_id, allowed) {
-        log::warn!("No pending permission request for agent_run_id: {}", agent_run_id);
+        log::warn!(
+            "No pending permission request for agent_run_id: {}",
+            agent_run_id
+        );
     }
     Ok(())
 }

@@ -1,4 +1,3 @@
-use crate::services::terminal_service::TerminalService;
 use crate::state::AppState;
 use tauri::{AppHandle, State};
 

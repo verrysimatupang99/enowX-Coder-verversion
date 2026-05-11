@@ -312,8 +312,18 @@ struct SubagentParams {
 }
 
 impl AgentRunner {
-    pub fn new(db: SqlitePool, app_handle: AppHandle, permissions: PermissionState, cancel_token: CancellationToken) -> Self {
-        Self { db, app_handle, permissions, cancel_token }
+    pub fn new(
+        db: SqlitePool,
+        app_handle: AppHandle,
+        permissions: PermissionState,
+        cancel_token: CancellationToken,
+    ) -> Self {
+        Self {
+            db,
+            app_handle,
+            permissions,
+            cancel_token,
+        }
     }
 
     pub async fn run(
@@ -395,17 +405,13 @@ impl AgentRunner {
             AgentStartedEvent {
                 agent_run_id: agent_run_id.clone(),
                 agent_type: ctx.agent_type.to_string(),
-                parent_agent_run_id: ctx.parent_agent_run_id.map(std::string::ToString::to_string),
+                parent_agent_run_id: ctx
+                    .parent_agent_run_id
+                    .map(std::string::ToString::to_string),
             },
         );
 
-        let result = self
-            .execute_agent(
-                &agent_run_id,
-                ctx,
-                token_sink,
-            )
-            .await;
+        let result = self.execute_agent(&agent_run_id, ctx, token_sink).await;
 
         match result {
             Ok(output) => {
@@ -495,7 +501,11 @@ impl AgentRunner {
         let mut history: Vec<(String, String, String)> = Vec::new();
 
         for msg in &user_messages {
-            history.push((msg.created_at.clone(), msg.role.clone(), msg.content.clone()));
+            history.push((
+                msg.created_at.clone(),
+                msg.role.clone(),
+                msg.content.clone(),
+            ));
         }
 
         for run in &agent_runs {
@@ -565,7 +575,10 @@ impl AgentRunner {
         token_sink: &S,
     ) -> AppResult<String> {
         let system_prompt = get_prompt(ctx.agent_type).ok_or_else(|| {
-            AppError::Validation(format!("Unknown agent type for prompt lookup: {}", ctx.agent_type))
+            AppError::Validation(format!(
+                "Unknown agent type for prompt lookup: {}",
+                ctx.agent_type
+            ))
         })?;
 
         let provider = provider_service::get_provider_for_chat(&self.db, ctx.provider_id).await?;
@@ -587,7 +600,10 @@ impl AgentRunner {
         let tool_executor = ToolExecutor::new(PathBuf::from(ctx.project_path));
 
         let system_content = if ctx.flux_enabled {
-            format!("{}\n\n{}\n\n{}", system_prompt, LANGUAGE_GUARD, PREVIEW_GUIDE)
+            format!(
+                "{}\n\n{}\n\n{}",
+                system_prompt, LANGUAGE_GUARD, PREVIEW_GUIDE
+            )
         } else {
             format!("{}\n\n{}", system_prompt, LANGUAGE_GUARD)
         };
@@ -626,7 +642,7 @@ impl AgentRunner {
                 let parent_id = agent_run_id.to_string();
                 let provider_id_owned = ctx.provider_id.map(std::string::ToString::to_string);
                 let model_id_owned = ctx.model_id.map(std::string::ToString::to_string);
-                
+
                 let mut futures = FuturesUnordered::new();
 
                 for subagent in subagent_tasks {
@@ -653,7 +669,7 @@ impl AgentRunner {
 
                         (agent_type_owned, task_owned, result)
                     };
-                    
+
                     futures.push(future);
                 }
 
@@ -714,7 +730,10 @@ impl AgentRunner {
         token_sink: &S,
     ) -> AppResult<String> {
         let system_prompt = get_prompt(ctx.agent_type).ok_or_else(|| {
-            AppError::Validation(format!("Unknown agent type for prompt lookup: {}", ctx.agent_type))
+            AppError::Validation(format!(
+                "Unknown agent type for prompt lookup: {}",
+                ctx.agent_type
+            ))
         })?;
 
         let provider = provider_service::get_provider_for_chat(&self.db, ctx.provider_id).await?;
@@ -722,7 +741,10 @@ impl AgentRunner {
         let tool_executor = ToolExecutor::new(PathBuf::from(ctx.project_path));
 
         let system_content = if ctx.flux_enabled {
-            format!("{}\n\n{}\n\n{}", system_prompt, LANGUAGE_GUARD, PREVIEW_GUIDE)
+            format!(
+                "{}\n\n{}\n\n{}",
+                system_prompt, LANGUAGE_GUARD, PREVIEW_GUIDE
+            )
         } else {
             format!("{}\n\n{}", system_prompt, LANGUAGE_GUARD)
         };
@@ -867,12 +889,8 @@ impl AgentRunner {
         );
 
         // Check if permission is needed and wait for approval
-        let permission_rx = self.emit_permission_request_if_needed(
-            agent_run_id,
-            agent_type,
-            executor,
-            tool_call,
-        );
+        let permission_rx =
+            self.emit_permission_request_if_needed(agent_run_id, agent_type, executor, tool_call);
 
         if let Some(rx) = permission_rx {
             // Wait for permission with 60 second timeout
@@ -1014,9 +1032,9 @@ impl AgentRunner {
             } else {
                 executor.sandbox.join(&path).to_string_lossy().to_string()
             };
-            
+
             let rx = self.permissions.register(agent_run_id.to_string());
-            
+
             let _ = self.app_handle.emit(
                 "agent-permission-request",
                 AgentPermissionRequestEvent {
@@ -1035,9 +1053,9 @@ impl AgentRunner {
             } else {
                 executor.sandbox.join(path).to_string_lossy().to_string()
             };
-            
+
             let rx = self.permissions.register(agent_run_id.to_string());
-            
+
             let _ = self.app_handle.emit(
                 "agent-permission-request",
                 AgentPermissionRequestEvent {
@@ -1049,7 +1067,7 @@ impl AgentRunner {
             );
             return Some(rx);
         }
-        
+
         None
     }
 
@@ -1240,10 +1258,9 @@ impl AgentRunner {
             .and_then(Value::as_array)
         {
             for chunk in tool_calls {
-                let index_u64 = chunk
-                    .get("index")
-                    .and_then(Value::as_u64)
-                    .ok_or_else(|| AppError::Json("OpenAI tool call chunk missing index".to_string()))?;
+                let index_u64 = chunk.get("index").and_then(Value::as_u64).ok_or_else(|| {
+                    AppError::Json("OpenAI tool call chunk missing index".to_string())
+                })?;
                 let index = usize::try_from(index_u64)
                     .map_err(|_| AppError::Json("OpenAI tool call index overflow".to_string()))?;
 
@@ -1359,7 +1376,10 @@ impl AgentRunner {
             Err(_) => return Ok(false),
         };
 
-        let event_type = value.get("type").and_then(Value::as_str).unwrap_or_default();
+        let event_type = value
+            .get("type")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
 
         match event_type {
             "content_block_start" => {
@@ -1370,10 +1390,8 @@ impl AgentRunner {
                     == Some("tool_use");
 
                 if is_tool_use {
-                    let index_u64 = value
-                        .get("index")
-                        .and_then(Value::as_u64)
-                        .ok_or_else(|| {
+                    let index_u64 =
+                        value.get("index").and_then(Value::as_u64).ok_or_else(|| {
                             AppError::Json(
                                 "Anthropic tool_use content_block_start missing index".to_string(),
                             )
@@ -1437,13 +1455,9 @@ impl AgentRunner {
                     == Some("input_json_delta");
 
                 if is_input_json_delta {
-                    let index_u64 = value
-                        .get("index")
-                        .and_then(Value::as_u64)
-                        .ok_or_else(|| {
-                            AppError::Json(
-                                "Anthropic input_json_delta missing index".to_string(),
-                            )
+                    let index_u64 =
+                        value.get("index").and_then(Value::as_u64).ok_or_else(|| {
+                            AppError::Json("Anthropic input_json_delta missing index".to_string())
                         })?;
                     let index = usize::try_from(index_u64).map_err(|_| {
                         AppError::Json("Anthropic input_json_delta index overflow".to_string())
@@ -1608,9 +1622,7 @@ fn summarize_html_widget(html: &str) -> String {
     }
 
     // Extract visible text from key elements (h1-h3, labels, spans with data)
-    let text_re = regex::Regex::new(
-        r"<(?:h[1-3]|label|th|td)[^>]*>([^<]{1,100})<"
-    ).ok();
+    let text_re = regex::Regex::new(r"<(?:h[1-3]|label|th|td)[^>]*>([^<]{1,100})<").ok();
     if let Some(re) = text_re {
         let mut texts: Vec<&str> = Vec::new();
         for cap in re.captures_iter(html) {
@@ -1638,7 +1650,10 @@ fn summarize_html_widget(html: &str) -> String {
             }
         }
         if let Some(re) = dataset_re {
-            let names: Vec<&str> = re.captures_iter(html).filter_map(|c| c.get(1).map(|m| m.as_str())).collect();
+            let names: Vec<&str> = re
+                .captures_iter(html)
+                .filter_map(|c| c.get(1).map(|m| m.as_str()))
+                .collect();
             if !names.is_empty() {
                 summary.push_str(&format!("datasets: {}. ", names.join(", ")));
             }
@@ -1651,7 +1666,10 @@ fn summarize_html_widget(html: &str) -> String {
             }
         }
         if let Some(re) = bg_re {
-            let colors: Vec<&str> = re.captures_iter(html).filter_map(|c| c.get(1).map(|m| m.as_str())).collect();
+            let colors: Vec<&str> = re
+                .captures_iter(html)
+                .filter_map(|c| c.get(1).map(|m| m.as_str()))
+                .collect();
             if !colors.is_empty() {
                 summary.push_str(&format!("colors: {}. ", colors.join(", ")));
             }
@@ -1661,7 +1679,10 @@ fn summarize_html_widget(html: &str) -> String {
     // Extract metric card values
     let metric_re = regex::Regex::new(r"metric-value[^>]*>([^<]{1,50})<").ok();
     if let Some(re) = metric_re {
-        let vals: Vec<&str> = re.captures_iter(html).filter_map(|c| c.get(1).map(|m| m.as_str().trim())).collect();
+        let vals: Vec<&str> = re
+            .captures_iter(html)
+            .filter_map(|c| c.get(1).map(|m| m.as_str().trim()))
+            .collect();
         if !vals.is_empty() {
             summary.push_str(&format!("metrics: {}. ", vals.join(", ")));
         }
@@ -1673,7 +1694,11 @@ fn summarize_html_widget(html: &str) -> String {
             .ok()
             .map(|re| re.replace_all(html, " ").to_string())
             .unwrap_or_default();
-        let clean: String = stripped.split_whitespace().take(50).collect::<Vec<&str>>().join(" ");
+        let clean: String = stripped
+            .split_whitespace()
+            .take(50)
+            .collect::<Vec<&str>>()
+            .join(" ");
         if !clean.is_empty() {
             summary.push_str(&clean);
         } else {
@@ -1773,7 +1798,9 @@ fn to_openai_messages(messages: &[ConversationMessage]) -> Vec<Value> {
         .collect()
 }
 
-fn to_anthropic_messages(messages: &[ConversationMessage]) -> AppResult<(Option<String>, Vec<Value>)> {
+fn to_anthropic_messages(
+    messages: &[ConversationMessage],
+) -> AppResult<(Option<String>, Vec<Value>)> {
     let mut system: Option<String> = None;
     let mut out = Vec::new();
 
