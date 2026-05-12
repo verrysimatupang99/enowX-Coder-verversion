@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils';
 type SidebarTab = 'files' | 'history';
 
 export const LeftSidebar: React.FC = () => {
-  const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
   const toggleLeftSidebar = useUIStore((s) => s.toggleLeftSidebar);
   const leftSidebarCollapsed = useUIStore((s) => s.leftSidebarCollapsed);
   const toggleLeftSidebarCollapsed = useUIStore((s) => s.toggleLeftSidebarCollapsed);
