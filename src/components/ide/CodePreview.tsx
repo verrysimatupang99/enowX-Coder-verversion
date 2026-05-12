@@ -1,86 +1,28 @@
-import { useRef } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import Editor from '@monaco-editor/react';
 
 interface CodePreviewProps {
   content: string;
   language?: string;
-  path?: string;
+  readOnly?: boolean;
 }
 
-export function CodePreview({ content, language, path }: CodePreviewProps) {
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-    editorRef.current = editor;
-
-    // Configure read-only mode
-    editor.updateOptions({
-      readOnly: true,
-      domReadOnly: true,
-      contextmenu: false,
-    });
-
-    // Dark theme
-    monaco.editor.defineTheme('enowx-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#1e1e1e',
-      },
-    });
-    monaco.editor.setTheme('enowx-dark');
-  };
-
-  const detectLanguage = (): string => {
-    if (language) return language;
-    if (!path) return 'plaintext';
-
-    const ext = path.split('.').pop()?.toLowerCase();
-    const langMap: Record<string, string> = {
-      ts: 'typescript',
-      tsx: 'typescript',
-      js: 'javascript',
-      jsx: 'javascript',
-      json: 'json',
-      md: 'markdown',
-      py: 'python',
-      rs: 'rust',
-      go: 'go',
-      java: 'java',
-      cpp: 'cpp',
-      c: 'c',
-      css: 'css',
-      html: 'html',
-      xml: 'xml',
-      yaml: 'yaml',
-      yml: 'yaml',
-      toml: 'toml',
-      sh: 'shell',
-      bash: 'shell',
-    };
-
-    return langMap[ext || ''] || 'plaintext';
-  };
-
+export function CodePreview({ content, language = 'typescript', readOnly = true }: CodePreviewProps) {
   return (
     <div className="h-full w-full">
       <Editor
         height="100%"
-        language={detectLanguage()}
+        language={language}
         value={content}
-        onMount={handleEditorDidMount}
+        theme="vs-dark"
         options={{
-          readOnly: true,
+          readOnly,
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize: 13,
           lineNumbers: 'on',
           scrollBeyondLastLine: false,
-          automaticLayout: true,
           wordWrap: 'on',
+          automaticLayout: true,
         }}
-        theme="vs-dark"
       />
     </div>
   );
