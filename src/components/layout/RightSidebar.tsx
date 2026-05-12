@@ -55,32 +55,33 @@ export const RightSidebar: React.FC = () => {
   if (rightSidebarCollapsed) {
     return (
       <aside 
-        className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col items-center py-4 gap-3"
+        className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col items-center gap-3"
         style={{ width: '48px' }}
       >
-        {/* Tab Icons */}
-        {tabs.map((tab) => (
+        {/* Collapse toggle at top */}
+        <div className="w-full border-b border-[var(--border)] py-3 flex justify-center">
           <button
-            key={tab.id}
-            onClick={() => handleTabClick(tab.id)}
+            onClick={toggleRightSidebarCollapsed}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
-            title={tab.label}
+            title="Expand"
           >
-            <tab.icon size={16} weight="fill" />
+            <SidebarSimple size={16} weight="fill" className="scale-x-[-1]" />
           </button>
-        ))}
+        </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Expand Button */}
-        <button
-          onClick={toggleRightSidebarCollapsed}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
-          title="Expand"
-        >
-          <SidebarSimple size={16} weight="fill" className="scale-x-[-1]" />
-        </button>
+        {/* Tab Icons */}
+        <div className="flex flex-col gap-2 px-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+              title={tab.label}
+            >
+              <tab.icon size={16} weight="fill" />
+            </button>
+          ))}
+        </div>
       </aside>
     );
   }
@@ -90,32 +91,32 @@ export const RightSidebar: React.FC = () => {
       className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col relative"
       style={{ width: `${width}px` }}
     >
-      <div className="flex items-center border-b border-[var(--border)]">
+      <div className="flex items-center border-b border-[var(--border)] h-14 px-3 gap-2">
         <button
           onClick={toggleRightSidebarCollapsed}
-          className="p-2.5 text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors shrink-0"
+          className="w-7 h-7 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors flex-shrink-0"
           title="Collapse panel"
         >
-          <SidebarSimple size={16} weight="fill" className="scale-x-[-1]" />
+          <SidebarSimple size={15} weight="fill" className="scale-x-[-1] text-[var(--text)]" />
         </button>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-all relative group",
-              activeTab === tab.id 
-                ? "text-[var(--text)]" 
-                : "text-[var(--text-muted)] hover:text-[var(--text)]"
-            )}
-          >
-            <tab.icon size={16} weight={activeTab === tab.id ? "fill" : "regular"} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">{tab.label}</span>
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent)] transition-all" />
-            )}
-          </button>
-        ))}
+        
+        <div className="flex-1 flex items-center gap-1 overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap flex-shrink-0",
+                activeTab === tab.id 
+                  ? "bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]" 
+                  : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]"
+              )}
+            >
+              <tab.icon size={14} weight={activeTab === tab.id ? "fill" : "regular"} />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
