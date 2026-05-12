@@ -33,8 +33,8 @@ export function useResizableSidebar({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const delta = side === 'left' 
-        ? moveEvent.clientX - startX
-        : startX - moveEvent.clientX;
+        ? moveEvent.clientX - startX  // drag right = positive = increase
+        : startX - moveEvent.clientX; // drag left = positive = increase (inverted)
 
       const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + delta));
       setWidth(newWidth);
