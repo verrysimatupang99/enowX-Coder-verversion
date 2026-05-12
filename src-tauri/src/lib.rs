@@ -86,7 +86,9 @@ pub fn run() -> Result<(), AppError> {
             commands::plugin::disable_plugin,
             commands::plugin::install_plugin,
             commands::settings::get_optimization_settings,
-            commands::settings::update_optimization_settings
+            commands::settings::update_optimization_settings,
+            commands::settings::get_permission_settings,
+            commands::settings::update_permission_mode
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

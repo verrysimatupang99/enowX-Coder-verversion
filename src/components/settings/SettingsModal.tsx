@@ -6,6 +6,7 @@ import { AgentsTab } from './AgentsTab';
 import { MCPServerManager } from './MCPServerManager';
 import { PluginManager } from './PluginManager';
 import { TokenDashboard } from './TokenDashboard';
+import { PermissionsTab } from './PermissionsTab';
 import { cn } from '@/lib/utils';
 
 type SettingsTab = 'providers' | 'agents' | 'tools' | 'system';
@@ -113,8 +114,15 @@ export const SettingsModal: React.FC = () => {
           )}
 
           {activeTab === 'system' && (
-            <div className="overflow-y-auto h-full">
-              <TokenDashboard />
+            <div className="overflow-y-auto h-full space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Token Optimization</h3>
+                <TokenDashboard />
+              </div>
+              <div className="border-t border-[var(--border)] pt-6">
+                <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Permissions</h3>
+                <PermissionsTab />
+              </div>
             </div>
           )}
         </div>
