@@ -75,7 +75,9 @@ pub fn run() -> Result<(), AppError> {
             commands::mcp::stop_mcp_server,
             commands::mcp::restart_mcp_server,
             commands::mcp::discover_mcp_tools,
-            commands::mcp::invoke_mcp_tool
+            commands::mcp::invoke_mcp_tool,
+            commands::rtk::get_token_savings,
+            commands::rtk::get_total_token_savings
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

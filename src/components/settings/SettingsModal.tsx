@@ -4,6 +4,7 @@ import { useUIStore } from '@/stores/useUIStore';
 import { ProvidersTab } from './ProvidersTab';
 import { AgentsTab } from './AgentsTab';
 import { MCPServerManager } from './MCPServerManager';
+import { TokenDashboard } from './TokenDashboard';
 import { cn } from '@/lib/utils';
 
 type SettingsTab = 'providers' | 'agents' | 'tools' | 'system';
@@ -104,10 +105,8 @@ export const SettingsModal: React.FC = () => {
           )}
 
           {activeTab === 'system' && (
-            <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
-              <GearSix size={32} weight="duotone" className="opacity-50 mb-4" />
-              <p className="text-sm font-semibold">System Settings</p>
-              <p className="text-xs">Coming soon</p>
+            <div className="overflow-y-auto h-full">
+              <TokenDashboard />
             </div>
           )}
         </div>
