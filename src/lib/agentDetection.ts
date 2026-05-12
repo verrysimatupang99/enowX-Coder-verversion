@@ -36,15 +36,21 @@ export function detectAgentType(ctx: DetectionContext): AgentType {
     msg.includes('implement plan') ||
     msg.includes('follow plan') ||
     msg.includes('next step') ||
-    msg.includes('continue')
+    msg.includes('continue') ||
+    // Prioritize build/create/setup keywords for orchestrator
+    msg.includes('build') ||
+    msg.includes('create') ||
+    msg.includes('setup') ||
+    msg.includes('integrate') ||
+    msg.includes('implement') ||
+    msg.includes('develop')
   ) {
     return 'orchestrator';
   }
 
-  // Coder detection - code-related keywords
+  // Coder detection - code-related keywords (excluding orchestrator keywords)
   if (
     msg.includes('code') ||
-    msg.includes('implement') ||
     msg.includes('function') ||
     msg.includes('component') ||
     msg.includes('fix') ||
@@ -52,9 +58,6 @@ export function detectAgentType(ctx: DetectionContext): AgentType {
     msg.includes('refactor') ||
     msg.includes('optimize') ||
     msg.includes('add feature') ||
-    msg.includes('create') ||
-    msg.includes('build') ||
-    msg.includes('develop') ||
     msg.includes('write') ||
     msg.includes('update') ||
     msg.includes('modify') ||
