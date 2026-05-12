@@ -107,6 +107,18 @@ pub fn run() -> Result<(), AppError> {
                         .run(app_state.pool())
                         .await
                         .map_err(|e| e.to_string())?;
+                    
+                    // Initialize builtin MCP servers and plugins
+                    use crate::services::mcp_service::MCPService;
+                    use crate::services::plugin_service::PluginService;
+                    
+                    MCPService::initialize_builtin_servers(app_state.pool())
+                        .await
+                        .map_err(|e| e.to_string())?;
+                    PluginService::initialize_builtin_plugins(app_state.pool())
+                        .await
+                        .map_err(|e| e.to_string())?;
+                    
                     Ok(app_state)
                 });
                 let _ = tx.send(result);

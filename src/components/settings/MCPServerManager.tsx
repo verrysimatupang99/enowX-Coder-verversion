@@ -8,6 +8,7 @@ interface MCPServer {
   command: string;
   args: string;
   enabled: boolean;
+  is_builtin: boolean;
   created_at: string;
 }
 
@@ -156,6 +157,11 @@ export const MCPServerManager: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-[var(--text)]">{server.name}</span>
+                {server.is_builtin && (
+                  <span className="px-2 py-0.5 text-xs rounded bg-blue-500/20 text-blue-400">
+                    Built-in
+                  </span>
+                )}
                 <span
                   className={`px-2 py-0.5 text-xs rounded ${
                     server.enabled
@@ -198,13 +204,15 @@ export const MCPServerManager: React.FC = () => {
               >
                 {server.enabled ? 'Disable' : 'Enable'}
               </button>
-              <button
-                onClick={() => handleDelete(server.id)}
-                className="p-1.5 text-[var(--text-muted)] hover:text-red-400 hover:bg-[var(--hover-bg)] rounded transition-colors"
-                title="Delete"
-              >
-                <Trash size={14} />
-              </button>
+              {!server.is_builtin && (
+                <button
+                  onClick={() => handleDelete(server.id)}
+                  className="p-1.5 text-[var(--text-muted)] hover:text-red-400 hover:bg-[var(--hover-bg)] rounded transition-colors"
+                  title="Delete"
+                >
+                  <Trash size={14} />
+                </button>
+              )}
             </div>
           </div>
         ))}

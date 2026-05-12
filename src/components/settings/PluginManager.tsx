@@ -11,6 +11,7 @@ interface Plugin {
   description?: string;
   author?: string;
   enabled: boolean;
+  is_builtin: boolean;
   config?: string;
   installed_at: string;
 }
@@ -117,6 +118,11 @@ export const PluginManager: React.FC = () => {
                       <span className="text-xs text-[var(--text-muted)] shrink-0">
                         v{plugin.version}
                       </span>
+                      {plugin.is_builtin && (
+                        <span className="px-2 py-0.5 text-xs rounded bg-blue-500/20 text-blue-400 shrink-0">
+                          Built-in
+                        </span>
+                      )}
                     </div>
                     {plugin.description && (
                       <p className="text-xs text-[var(--text-muted)] line-clamp-2">

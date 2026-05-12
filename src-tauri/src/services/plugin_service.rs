@@ -14,6 +14,7 @@ pub struct Plugin {
     pub description: Option<String>,
     pub author: Option<String>,
     pub enabled: bool,
+    pub is_builtin: bool,
     pub config: Option<String>, // JSON
     pub installed_at: String,
 }
@@ -35,7 +36,7 @@ pub struct PluginService;
 impl PluginService {
     pub async fn list_plugins(db: &SqlitePool) -> AppResult<Vec<Plugin>> {
         let plugins = sqlx::query_as::<_, Plugin>(
-            "SELECT id, name, version, description, author, enabled, config, installed_at FROM plugins ORDER BY installed_at DESC"
+            "SELECT id, name, version, description, author, enabled, is_builtin, config, installed_at FROM plugins ORDER BY installed_at DESC"
         )
         .fetch_all(db)
         .await?;
@@ -65,10 +66,10 @@ impl PluginService {
         let config = manifest.settings.as_ref().map(|s| s.to_string());
 
         sqlx::query(
-            "INSERT INTO plugins (id, name, version, description, author, enabled, config, installed_at) 
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+            "INSERT INTO plugins (id, name, version, description, author, enabled, is_builtin, config, installed_at) 
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
              ON CONFLICT(id) DO UPDATE SET 
-                name = ?2, version = ?3, description = ?4, author = ?5, config = ?7"
+                name = ?2, version = ?3, description = ?4, author = ?5, config = ?8"
         )
         .bind(&manifest.id)
         .bind(&manifest.name)
@@ -76,6 +77,7 @@ impl PluginService {
         .bind(&manifest.description)
         .bind(&manifest.author)
         .bind(true)
+        .bind(false)
         .bind(&config)
         .bind(&installed_at)
         .execute(db)
@@ -88,6 +90,7 @@ impl PluginService {
             description: manifest.description.clone(),
             author: manifest.author.clone(),
             enabled: true,
+            is_builtin: false,
             config,
             installed_at,
         })
@@ -161,6 +164,74 @@ impl PluginService {
         copy_dir_all(path, &dest)?;
 
         Self::register_plugin(db, &manifest).await
+    }
+
+    pub async fn initialize_builtin_plugins(db: &SqlitePool) -> AppResult<()> {
+        // Check if any plugins exist
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM plugins")
+            .fetch_one(db)
+            .await?;
+
+        if count > 0 {
+            return Ok(()); // Already initialized
+        }
+
+        // Insert builtin plugins
+        let builtins = vec![
+            PluginManifest {
+                id: "hello-world".to_string(),
+                name: "Hello World".to_string(),
+                version: "1.0.0".to_string(),
+                description: Some("Simple hello world plugin".to_string()),
+                author: Some("enowX Labs".to_string()),
+                tools: vec![],
+                commands: vec![],
+                settings: None,
+            },
+            PluginManifest {
+                id: "code-review".to_string(),
+                name: "Code Review".to_string(),
+                version: "1.0.0".to_string(),
+                description: Some("Automated code review assistant".to_string()),
+                author: Some("enowX Labs".to_string()),
+                tools: vec![],
+                commands: vec![],
+                settings: None,
+            },
+            PluginManifest {
+                id: "security-scan".to_string(),
+                name: "Security Scanner".to_string(),
+                version: "1.0.0".to_string(),
+                description: Some("Security vulnerability scanner".to_string()),
+                author: Some("enowX Labs".to_string()),
+                tools: vec![],
+                commands: vec![],
+                settings: None,
+            },
+        ];
+
+        for manifest in builtins {
+            let installed_at = now_rfc3339();
+            let config = manifest.settings.as_ref().map(|s| s.to_string());
+
+            sqlx::query(
+                "INSERT INTO plugins (id, name, version, description, author, enabled, is_builtin, config, installed_at) 
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"
+            )
+            .bind(&manifest.id)
+            .bind(&manifest.name)
+            .bind(&manifest.version)
+            .bind(&manifest.description)
+            .bind(&manifest.author)
+            .bind(true)
+            .bind(true)
+            .bind(&config)
+            .bind(&installed_at)
+            .execute(db)
+            .await?;
+        }
+
+        Ok(())
     }
 }
 

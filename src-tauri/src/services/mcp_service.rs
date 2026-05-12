@@ -16,6 +16,7 @@ pub struct MCPServer {
     pub command: String,
     pub args: String, // JSON array
     pub enabled: bool,
+    pub is_builtin: bool,
     pub created_at: String,
 }
 
@@ -40,7 +41,7 @@ impl MCPService {
 
     pub async fn list_servers(db: &SqlitePool) -> AppResult<Vec<MCPServer>> {
         let servers = sqlx::query_as::<_, MCPServer>(
-            "SELECT id, name, command, args, enabled, created_at FROM mcp_servers ORDER BY created_at DESC"
+            "SELECT id, name, command, args, enabled, is_builtin, created_at FROM mcp_servers ORDER BY created_at DESC"
         )
         .fetch_all(db)
         .await?;
@@ -58,13 +59,14 @@ impl MCPService {
         let created_at = now_rfc3339();
 
         sqlx::query(
-            "INSERT INTO mcp_servers (id, name, command, args, enabled, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
+            "INSERT INTO mcp_servers (id, name, command, args, enabled, is_builtin, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)"
         )
         .bind(&id)
         .bind(name)
         .bind(command)
         .bind(&args_json)
         .bind(true)
+        .bind(false)
         .bind(&created_at)
         .execute(db)
         .await?;
@@ -75,6 +77,7 @@ impl MCPService {
             command: command.to_string(),
             args: args_json,
             enabled: true,
+            is_builtin: false,
             created_at,
         })
     }
@@ -145,6 +148,47 @@ impl MCPService {
         // Placeholder: MCP protocol tool invocation
         // In real impl: send call_tool request via stdio
         Err(AppError::Internal("MCP tool invocation not yet implemented".to_string()))
+    }
+
+    pub async fn initialize_builtin_servers(db: &SqlitePool) -> AppResult<()> {
+        // Check if any servers exist
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM mcp_servers")
+            .fetch_one(db)
+            .await?;
+
+        if count > 0 {
+            return Ok(()); // Already initialized
+        }
+
+        // Insert builtin MCP servers
+        let builtins = vec![
+            ("filesystem", "npx", vec!["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]),
+            ("github", "npx", vec!["-y", "@modelcontextprotocol/server-github"]),
+            ("sqlite", "npx", vec!["-y", "@modelcontextprotocol/server-sqlite"]),
+            ("fetch", "npx", vec!["-y", "@modelcontextprotocol/server-fetch"]),
+        ];
+
+        for (name, command, args) in builtins {
+            let id = Uuid::new_v4().to_string();
+            let args_json = serde_json::to_string(&args)?;
+            let created_at = now_rfc3339();
+
+            sqlx::query(
+                "INSERT INTO mcp_servers (id, name, command, args, enabled, is_builtin, created_at) 
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)"
+            )
+            .bind(&id)
+            .bind(name)
+            .bind(command)
+            .bind(&args_json)
+            .bind(true)
+            .bind(true)
+            .bind(&created_at)
+            .execute(db)
+            .await?;
+        }
+
+        Ok(())
     }
 }
 

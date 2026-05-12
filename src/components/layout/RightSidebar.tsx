@@ -1,5 +1,4 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { useResizableSidebar } from '@/hooks/useResizableSidebar';
 import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
