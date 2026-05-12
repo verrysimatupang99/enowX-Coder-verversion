@@ -100,20 +100,21 @@ export const RightSidebar: React.FC = () => {
           <SidebarSimple size={15} weight="fill" className="scale-x-[-1] text-[var(--text)]" />
         </button>
         
-        <div className="flex-1 flex items-center gap-1 overflow-x-auto scrollbar-hide">
+        <div className="flex-1 grid grid-cols-4 gap-1.5">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap flex-shrink-0",
+                "flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all",
                 activeTab === tab.id 
                   ? "bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]" 
                   : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]"
               )}
+              title={tab.label}
             >
-              <tab.icon size={14} weight={activeTab === tab.id ? "fill" : "regular"} />
-              <span>{tab.label}</span>
+              <tab.icon size={16} weight={activeTab === tab.id ? "fill" : "regular"} />
+              <span className="text-[9px] font-medium">{tab.label}</span>
             </button>
           ))}
         </div>

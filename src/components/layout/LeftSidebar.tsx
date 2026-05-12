@@ -43,29 +43,42 @@ export const LeftSidebar: React.FC = () => {
   if (leftSidebarCollapsed) {
     return (
       <aside 
-        className="h-full bg-[var(--surface)] border-r border-[var(--border)] flex flex-col items-center py-4 gap-3"
+        className="h-full bg-[var(--surface)] border-r border-[var(--border)] flex flex-col items-center gap-3"
         style={{ width: '48px' }}
       >
+        {/* Collapse toggle at top */}
+        <div className="w-full border-b border-[var(--border)] py-3 flex justify-center">
+          <button
+            onClick={toggleLeftSidebarCollapsed}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+            title="Expand"
+          >
+            <SidebarSimple size={16} weight="fill" />
+          </button>
+        </div>
+
         {/* Logo */}
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent)] to-blue-500 flex items-center justify-center text-white font-bold text-xs">
           eX
         </div>
 
         {/* Tab Icons */}
-        <button
-          onClick={() => handleTabClick('files')}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
-          title="Files"
-        >
-          <Files size={16} weight="fill" />
-        </button>
-        <button
-          onClick={() => handleTabClick('history')}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
-          title="History"
-        >
-          <ClockCounterClockwise size={16} weight="fill" />
-        </button>
+        <div className="flex flex-col gap-2 px-2">
+          <button
+            onClick={() => handleTabClick('files')}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+            title="Files"
+          >
+            <Files size={16} weight="fill" />
+          </button>
+          <button
+            onClick={() => handleTabClick('history')}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+            title="History"
+          >
+            <ClockCounterClockwise size={16} weight="fill" />
+          </button>
+        </div>
 
         {/* Spacer */}
         <div className="flex-1" />
@@ -73,19 +86,10 @@ export const LeftSidebar: React.FC = () => {
         {/* Settings */}
         <button
           onClick={() => setSettingsOpen(true)}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors mb-2"
           title="Settings"
         >
           <GearSix size={16} weight="fill" />
-        </button>
-
-        {/* Expand Button */}
-        <button
-          onClick={toggleLeftSidebarCollapsed}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
-          title="Expand"
-        >
-          <SidebarSimple size={16} weight="fill" />
         </button>
       </aside>
     );
