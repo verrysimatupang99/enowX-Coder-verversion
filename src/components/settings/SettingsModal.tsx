@@ -3,6 +3,7 @@ import { X, Wrench, Robot, GearSix } from '@phosphor-icons/react';
 import { useUIStore } from '@/stores/useUIStore';
 import { ProvidersTab } from './ProvidersTab';
 import { AgentsTab } from './AgentsTab';
+import { MCPServerManager } from './MCPServerManager';
 import { cn } from '@/lib/utils';
 
 type SettingsTab = 'providers' | 'agents' | 'tools' | 'system';
@@ -97,10 +98,8 @@ export const SettingsModal: React.FC = () => {
           {activeTab === 'agents' && <AgentsTab />}
           
           {activeTab === 'tools' && (
-            <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
-              <Wrench size={32} weight="duotone" className="opacity-50 mb-4" />
-              <p className="text-sm font-semibold">Tools Configuration</p>
-              <p className="text-xs">Coming soon</p>
+            <div className="overflow-y-auto h-full">
+              <MCPServerManager />
             </div>
           )}
 

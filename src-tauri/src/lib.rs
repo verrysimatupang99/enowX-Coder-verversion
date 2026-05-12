@@ -65,7 +65,16 @@ pub fn run() -> Result<(), AppError> {
             commands::git::git_commit,
             commands::search::search_in_files,
             commands::search::replace_in_file,
-            commands::search::replace_in_files
+            commands::search::replace_in_files,
+            commands::mcp::list_mcp_servers,
+            commands::mcp::create_mcp_server,
+            commands::mcp::delete_mcp_server,
+            commands::mcp::toggle_mcp_server,
+            commands::mcp::start_mcp_server,
+            commands::mcp::stop_mcp_server,
+            commands::mcp::restart_mcp_server,
+            commands::mcp::discover_mcp_tools,
+            commands::mcp::invoke_mcp_tool
         ])
         .setup(|app| {
             let app_handle = app.handle().clone();

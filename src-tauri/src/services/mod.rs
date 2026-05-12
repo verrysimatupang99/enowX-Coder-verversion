@@ -3,6 +3,7 @@ pub mod chat_service;
 pub mod drawing_service;
 pub mod file_service;
 pub mod git_service;
+pub mod mcp_service;
 pub mod model_service;
 pub mod project_service;
 pub mod provider_model_service;
