@@ -254,26 +254,59 @@ export const RightSidebar: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
               <Code size={14} weight="duotone" />
-              Available Skills
+              Agent Skills
             </h3>
-            <div className="grid grid-cols-1 gap-2">
-              {['git-master', 'brainstorming', 'mnemosyne', 'plan-visualizer'].map(skill => (
-                <div key={skill} className="p-2 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30 hover:bg-[var(--surface-2)]/50 transition-colors cursor-pointer group">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-[var(--text)]">{skill}</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--text-subtle)]" />
-                  </div>
-                </div>
-              ))}
+            <div className="p-6 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/50 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mx-auto">
+                <Books size={24} weight="duotone" className="text-[var(--text-muted)]" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-[var(--text)]">Skills System Coming Soon</p>
+                <p className="text-[10px] text-[var(--text-muted)] mt-1">
+                  Reusable agent capabilities will appear here
+                </p>
+              </div>
             </div>
           </div>
         )}
 
         {activeTab === 'metrics' && (
-          <div className="space-y-4 text-center py-10">
-            <ChartBar size={48} weight="duotone" className="text-[var(--border)] mx-auto mb-2" />
-            <h3 className="text-sm font-bold">Session Metrics</h3>
-            <p className="text-xs text-[var(--text-muted)]">Usage data will appear here once the session starts.</p>
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+              <ChartBar size={14} weight="duotone" />
+              Session Metrics
+            </h3>
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-[var(--text-muted)]">Agent Runs</span>
+                  <span className="text-sm font-bold text-[var(--text)]">{agentRuns.length}</span>
+                </div>
+                <div className="text-[10px] text-[var(--text-subtle)]">
+                  {agentRuns.filter(r => r.status === 'completed').length} completed, {agentRuns.filter(r => r.status === 'running').length} active
+                </div>
+              </div>
+              <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-[var(--text-muted)]">Tool Calls</span>
+                  <span className="text-sm font-bold text-[var(--text)]">
+                    {agentRuns.reduce((sum, run) => sum + run.toolCalls.length, 0)}
+                  </span>
+                </div>
+                <div className="text-[10px] text-[var(--text-subtle)]">
+                  {agentRuns.reduce((sum, run) => sum + run.toolCalls.filter(tc => tc.status === 'completed').length, 0)} successful
+                </div>
+              </div>
+              <div className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-[var(--text-muted)]">Projects</span>
+                  <span className="text-sm font-bold text-[var(--text)]">{projects.length}</span>
+                </div>
+                <div className="text-[10px] text-[var(--text-subtle)]">
+                  {activeProjectId ? '1 active' : 'None active'}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
