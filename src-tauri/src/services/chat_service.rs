@@ -776,7 +776,7 @@ pub async fn search_sessions(
     query: &str,
     project_id: Option<&str>,
 ) -> AppResult<Vec<SearchResult>> {
-    let sql = if let Some(pid) = project_id {
+    let sql = if let Some(_pid) = project_id {
         r#"
         SELECT 
             m.session_id,

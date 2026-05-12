@@ -3,7 +3,7 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use crate::error::{AppError, AppResult};
+use crate::error::AppResult;
 use super::now_rfc3339;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
 use tauri::State;
 
 use crate::error::AppResult;
