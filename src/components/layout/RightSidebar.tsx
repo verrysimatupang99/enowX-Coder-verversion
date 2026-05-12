@@ -91,30 +91,33 @@ export const RightSidebar: React.FC = () => {
       className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col relative"
       style={{ width: `${width}px` }}
     >
-      <div className="flex items-center border-b border-[var(--border)] h-14 px-3 gap-2">
-        <button
-          onClick={toggleRightSidebarCollapsed}
-          className="w-7 h-7 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors flex-shrink-0"
-          title="Collapse panel"
-        >
-          <SidebarSimple size={15} weight="fill" className="scale-x-[-1] text-[var(--text)]" />
-        </button>
+      <div className="flex flex-col border-b border-[var(--border)] px-3 py-3 gap-3">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={toggleRightSidebarCollapsed}
+            className="w-7 h-7 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors"
+            title="Collapse panel"
+          >
+            <SidebarSimple size={15} weight="fill" className="scale-x-[-1] text-[var(--text)]" />
+          </button>
+          <span className="text-xs font-semibold text-[var(--text-muted)]">Tools</span>
+        </div>
         
-        <div className="flex-1 grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-4 gap-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 py-2 rounded-lg transition-all",
+                "flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-lg transition-all",
                 activeTab === tab.id 
-                  ? "bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]" 
+                  ? "bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30" 
                   : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]"
               )}
               title={tab.label}
             >
-              <tab.icon size={16} weight={activeTab === tab.id ? "fill" : "regular"} />
-              <span className="text-[9px] font-medium">{tab.label}</span>
+              <tab.icon size={18} weight={activeTab === tab.id ? "fill" : "regular"} />
+              <span className="text-[10px] font-medium leading-tight text-center">{tab.label}</span>
             </button>
           ))}
         </div>
