@@ -123,19 +123,19 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
 
   return (
     <>
-    <header className="h-16 border-b border-[var(--border)] bg-[var(--surface)] flex items-center justify-between px-6 backdrop-blur-md sticky top-0 z-10">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="h-16 border-b border-[var(--border)] bg-[var(--surface)] flex items-center justify-between px-4 md:px-6 backdrop-blur-md sticky top-0 z-10 flex-shrink-0">
+      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1 overflow-hidden">
         {onToggleLeftSidebar && (
           <button
             onClick={onToggleLeftSidebar}
-            className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors flex-shrink-0"
             title="Open sidebar"
           >
             <SidebarSimple size={18} />
           </button>
         )}
         {isRenaming ? (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <input
               ref={renameInputRef}
               value={renameValue}
@@ -144,24 +144,24 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
                 if (e.key === 'Enter') void handleConfirmRename();
                 if (e.key === 'Escape') handleCancelRename();
               }}
-              className="text-sm font-bold bg-[var(--surface-2)] border border-[var(--border)] rounded px-2 py-1 w-48 focus:border-[var(--focus-border)] transition-colors"
+              className="text-sm font-bold bg-[var(--surface-2)] border border-[var(--border)] rounded px-2 py-1 w-full max-w-xs focus:border-[var(--focus-border)] transition-colors"
             />
-            <button onClick={() => void handleConfirmRename()} className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
+            <button onClick={() => void handleConfirmRename()} className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors flex-shrink-0">
               <Check size={14} />
             </button>
-            <button onClick={handleCancelRename} className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
+            <button onClick={handleCancelRename} className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors flex-shrink-0">
               <X size={14} />
             </button>
           </div>
         ) : (
           <>
-            <h1 className="text-sm font-bold truncate tracking-tight">
+            <h1 className="text-sm font-bold truncate tracking-tight min-w-0">
               {activeSession ? activeSession.title : 'Chat'}
             </h1>
             {activeSession && (
               <button
                 onClick={handleStartRename}
-                className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+                className="p-1 rounded hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors flex-shrink-0"
                 title="Rename chat"
               >
                 <PencilSimple size={14} />
@@ -171,14 +171,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
         )}
         
         {/* Agent Selector */}
-        <div className="ml-2">
+        <div className="ml-1 md:ml-2 flex-shrink-0">
           <AgentSelector value={selectedAgentType} onChange={setSelectedAgentType} />
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
         {/* View tabs: Chat / Canvas */}
-        <div className="flex items-center bg-[var(--surface-2)]/50 rounded-lg border border-[var(--border)] p-0.5">
+        <div className="hidden sm:flex items-center bg-[var(--surface-2)]/50 rounded-lg border border-[var(--border)] p-0.5">
           <button
             onClick={() => setMainView('chat')}
             className={cn(
@@ -205,7 +205,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
           </button>
         </div>
 
-        <div className="relative group/flux">
+        <div className="relative group/flux hidden lg:block">
           <button
             onClick={toggleFlux}
             className={cn(
