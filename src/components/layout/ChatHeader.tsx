@@ -7,6 +7,7 @@ import { useChatStore } from '@/stores/useChatStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { PencilSimple, DotsThreeVertical, Sun, Moon, Trash, Plus, Check, X, SidebarSimple, ChatCircle, PaintBrush } from '@phosphor-icons/react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { AgentSelector } from '@/components/chat/AgentSelector';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { Session } from '@/types';
@@ -25,6 +26,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
   const mainView = useUIStore((s) => s.mainView);
   const setMainView = useUIStore((s) => s.setMainView);
   const { activeProjectId } = useProjectStore();
+  const { selectedAgentType, setSelectedAgentType } = useAgentStore();
 
   const { theme, toggleTheme } = useUIStore();
   const activeSession = sessions.find(s => s.id === activeSessionId);
@@ -167,6 +169,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onToggleLeftSidebar }) =
             )}
           </>
         )}
+        
+        {/* Agent Selector */}
+        <div className="ml-2">
+          <AgentSelector value={selectedAgentType} onChange={setSelectedAgentType} />
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
