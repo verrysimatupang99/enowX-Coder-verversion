@@ -3,17 +3,17 @@ import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, Circl
 import { ResizeHandle } from '@/components/common/ResizeHandle';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
+import { useResizableSidebar } from '@/hooks/useResizableSidebar';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { useProjectStore } from '@/stores/useProjectStore';
-import { useResizableSidebar } from '@/hooks/useResizableSidebar';
-import { AGENT_LABELS } from '@/types';
 import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
 import { SearchPanel } from '@/components/ide/SearchPanel';
+import { DiffPanel } from '@/components/ide/DiffPanel';
 
 const CodePreview = lazy(() => import('@/components/ide/CodePreview').then(m => ({ default: m.CodePreview })));
 
-type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 'search' | 'settings';
+type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'diff' | 'search' | 'settings';
 
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
@@ -39,7 +39,7 @@ export const RightSidebar: React.FC = () => {
     { id: 'terminal' as Tab, icon: TerminalWindow, label: 'Terminal' },
     { id: 'git' as Tab, icon: GitBranch, label: 'Git' },
     { id: 'search' as Tab, icon: MagnifyingGlass, label: 'Search' },
-    { id: 'preview' as Tab, icon: FileCode, label: 'Preview' },
+    { id: 'diff' as Tab, icon: FileCode, label: 'Diff' },
     { id: 'skills' as Tab, icon: Books, label: 'Skills' },
     { id: 'metrics' as Tab, icon: ChartBar, label: 'Metrics' },
     { id: 'settings' as Tab, icon: GearSix, label: 'Settings' },
@@ -172,21 +172,22 @@ export const RightSidebar: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'preview' && (
+        {activeTab === 'diff' && activeProject?.path && (
           <div className="h-full -m-4">
-            <Suspense fallback={
-              <div className="flex flex-col items-center justify-center h-full">
-                <CircleNotch size={32} weight="bold" className="text-[var(--accent)] animate-spin mb-3" />
-                <p className="text-xs text-[var(--text-muted)]">Loading editor...</p>
-              </div>
-            }>
-              <CodePreview
-                content="// Select a file from the explorer to preview"
-                language="typescript"
-              />
-            </Suspense>
+            <DiffPanel repoPath={activeProject.path} />
           </div>
         )}
+
+        {activeTab === 'diff' && !activeProject?.path && (
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <FileCode size={48} weight="duotone" className="text-[var(--text-muted)] mb-4" />
+            <p className="text-sm font-medium text-[var(--text)]">No Project Selected</p>
+            <p className="text-xs text-[var(--text-muted)] mt-2">
+              Select a project to view git diffs
+            </p>
+          </div>
+        )}
+
 
         {activeTab === 'agents' && (
           <div className="space-y-4">
