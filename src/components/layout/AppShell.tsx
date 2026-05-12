@@ -16,12 +16,12 @@ import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 import { AgentConfig, AgentRunWithTools, AgentType, Message, PermissionRequest, Project, Provider, ProviderModelConfig, Session, ToolCall } from '@/types';
-import { cn } from '@/lib/utils';
+import { detectAgentType } from '@/lib/agentDetection';
 
 const ExcalidrawCanvas = lazy(() => import('@/components/canvas/ExcalidrawCanvas').then(m => ({ default: m.ExcalidrawCanvas })));
 
 export const AppShell: React.FC = () => {
-  const { addMessage, appendStreamToken, setStreaming, clearStreaming, setMessages } = useChatStore();
+  const { addMessage, appendStreamToken, setStreaming, clearStreaming, setMessages, setActiveAgent } = useChatStore();
   const setProjects = useProjectStore((s) => s.setProjects);
   const setActiveProjectId = useProjectStore((s) => s.setActiveProjectId);
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
@@ -43,7 +43,6 @@ export const AppShell: React.FC = () => {
     setAgentConfigs,
     setPendingPermission,
     pendingPermission,
-    selectedAgentType,
     agentConfigs,
   } = useAgentStore();
 
@@ -448,19 +447,29 @@ export const AppShell: React.FC = () => {
 
     const { sessionId: currentSessionId, projectPath } = ctx;
 
-    if (selectedAgentType !== 'chat') {
+    // Auto-detect agent type based on message content
+    const detectedAgentType = detectAgentType({
+      message: content,
+      projectPath,
+    });
+
+    // Check if detected agent is configured
+    const agentConfig = agentConfigs.find((c) => c.agentType === detectedAgentType);
+    const agentProviderId = agentConfig?.providerId ?? defaultProviderId ?? null;
+    const agentModelId = agentConfig?.modelId ?? selectedModelId ?? null;
+
+    // If detected agent is not chat, use agent system
+    if (detectedAgentType !== 'chat') {
       const userMsg: Message = {
         id: crypto.randomUUID(),
         sessionId: currentSessionId,
         role: 'user',
         content,
         createdAt: new Date().toISOString(),
+        agentType: detectedAgentType,
       };
       addMessage(userMsg);
-
-      const agentConfig = agentConfigs.find((c) => c.agentType === selectedAgentType);
-      const agentProviderId = agentConfig?.providerId ?? defaultProviderId ?? null;
-      const agentModelId = agentConfig?.modelId ?? selectedModelId ?? null;
+      setActiveAgent(detectedAgentType);
 
       const onToken = new Channel<string>();
       onToken.onmessage = () => {};
@@ -469,7 +478,7 @@ export const AppShell: React.FC = () => {
         await invoke('run_agent', {
           request: {
             sessionId: currentSessionId,
-            agentType: selectedAgentType,
+            agentType: detectedAgentType,
             task: content,
             projectPath,
             providerId: agentProviderId,
@@ -484,15 +493,18 @@ export const AppShell: React.FC = () => {
       return;
     }
 
+    // Use chat for general conversation
     const userMsg: Message = {
       id: crypto.randomUUID(),
       sessionId: currentSessionId,
       role: 'user',
       content,
       createdAt: new Date().toISOString(),
+      agentType: 'chat',
     };
     addMessage(userMsg);
     setStreaming(true);
+    setActiveAgent('chat');
 
     const onToken = new Channel<string>();
     onToken.onmessage = (token) => {

@@ -9,44 +9,23 @@ import {
   Robot,
   TreeStructure,
   Code,
-  Terminal,
-  ShieldCheck,
-  MagnifyingGlass,
-  PaintBrush,
-  TestTube,
-  Eye,
   BookOpen,
-  Books,
 } from '@phosphor-icons/react';
 
 const AGENT_TYPES: AgentType[] = [
   'chat',
   'orchestrator',
   'planner',
-  'coder_fe',
-  'coder_be',
-  'security',
-  'ux_researcher',
-  'ui_designer',
-  'tester',
-  'reviewer',
+  'coder',
   'researcher',
-  'librarian',
 ];
 
 const AGENT_ICONS: Record<AgentType, React.ElementType> = {
   chat: ChatCircle,
   orchestrator: Robot,
   planner: TreeStructure,
-  coder_fe: Code,
-  coder_be: Terminal,
-  security: ShieldCheck,
-  ux_researcher: MagnifyingGlass,
-  ui_designer: PaintBrush,
-  tester: TestTube,
-  reviewer: Eye,
+  coder: Code,
   researcher: BookOpen,
-  librarian: Books,
 };
 
 export function AgentsTab() {

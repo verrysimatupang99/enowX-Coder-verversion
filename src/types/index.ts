@@ -21,6 +21,7 @@ export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   createdAt: string;
+  agentType?: AgentType; // Auto-detected agent type
 }
 
 export interface Provider {
@@ -67,31 +68,29 @@ export type AgentType =
   | 'chat'
   | 'orchestrator'
   | 'planner'
-  | 'coder_fe'
-  | 'coder_be'
-  | 'security'
-  | 'ux_researcher'
-  | 'ui_designer'
-  | 'tester'
-  | 'reviewer'
-  | 'researcher'
-  | 'librarian';
+  | 'coder'
+  | 'researcher';
 
-export const SELECTABLE_AGENTS: AgentType[] = ['chat', 'orchestrator', 'planner'];
+export const SELECTABLE_AGENTS: AgentType[] = ['chat', 'orchestrator', 'planner', 'coder', 'researcher'];
 
 export const AGENT_LABELS: Record<AgentType, string> = {
   chat: 'Chat',
   orchestrator: 'Orchestrator',
   planner: 'Planner',
-  coder_fe: 'Coder FE',
-  coder_be: 'Coder BE',
-  security: 'Security',
-  ux_researcher: 'UX Researcher',
-  ui_designer: 'UI Designer',
-  tester: 'Tester',
-  reviewer: 'Reviewer',
+  coder: 'Coder',
   researcher: 'Researcher',
-  librarian: 'Librarian',
+};
+
+// Legacy agent type mapping for backward compatibility
+export const LEGACY_AGENT_MAPPING: Record<string, AgentType> = {
+  'coder_fe': 'coder',
+  'coder_be': 'coder',
+  'security': 'coder',
+  'tester': 'coder',
+  'reviewer': 'coder',
+  'ui_designer': 'coder',
+  'ux_researcher': 'researcher',
+  'librarian': 'researcher',
 };
 
 export interface AgentConfig {

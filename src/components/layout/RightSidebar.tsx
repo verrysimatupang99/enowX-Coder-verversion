@@ -10,6 +10,7 @@ import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
 import { SearchPanel } from '@/components/ide/SearchPanel';
 import { DiffPanel } from '@/components/ide/DiffPanel';
+import { AGENT_LABELS } from '@/types';
 
 const CodePreview = lazy(() => import('@/components/ide/CodePreview').then(m => ({ default: m.CodePreview })));
 

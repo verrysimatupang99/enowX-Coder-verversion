@@ -5,6 +5,7 @@ import rehypeHighlight from 'rehype-highlight';
 import { Sparkle } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { Message } from '@/types';
+import { AGENT_LABELS } from '@/types';
 import { MarkdownCodeBlock } from './MarkdownCodeBlock';
 import { fixMarkdownTables } from '@/lib/utils';
 import 'highlight.js/styles/github-dark.css';
@@ -52,7 +53,12 @@ export const ChatMessage = React.memo<ChatMessageProps>(({ message }) => {
   /* ── User bubble ─────────────────────────────────────────── */
   if (isUser) {
     return (
-      <div className="flex justify-end">
+      <div className="flex flex-col items-end gap-1">
+        {message.agentType && (
+          <div className="text-[10px] text-[var(--text-subtle)] uppercase tracking-wider px-2">
+            {AGENT_LABELS[message.agentType]}
+          </div>
+        )}
         <div
           className={cn(
             'px-4 py-2.5 rounded-3xl rounded-br-lg text-[15px] leading-relaxed',

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { PaperPlaneTilt } from '@phosphor-icons/react';
 import { useChatStore } from '@/stores/useChatStore';
+import { AGENT_LABELS } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface ChatInputProps {
@@ -8,7 +9,7 @@ interface ChatInputProps {
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
-  const { isStreaming } = useChatStore();
+  const { isStreaming, activeAgent } = useChatStore();
   const [value, setValue] = React.useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -36,6 +37,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
     }
   };
 
+  const placeholderText = isStreaming && activeAgent
+    ? `${AGENT_LABELS[activeAgent]} is thinking…`
+    : isStreaming
+    ? 'Waiting for response…'
+    : 'Message enowX… (⌘↵ to send)';
+
   return (
     <div className="flex items-end gap-3 p-4 border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="flex-1 relative">
@@ -45,7 +52,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isStreaming}
-          placeholder={isStreaming ? 'Waiting for response…' : 'Message enowX… (⌘↵ to send)'}
+          placeholder={placeholderText}
           rows={1}
           className={cn(
             'w-full resize-none rounded-xl px-4 py-3 text-sm leading-relaxed',
