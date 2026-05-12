@@ -59,16 +59,16 @@ export const RightSidebar: React.FC = () => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex-1 flex flex-col items-center gap-1 py-3 transition-all relative group",
+              "flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-all relative group",
               activeTab === tab.id 
                 ? "text-[var(--text)]" 
                 : "text-[var(--text-muted)] hover:text-[var(--text)]"
             )}
           >
-            <tab.icon size={20} weight={activeTab === tab.id ? "fill" : "regular"} />
+            <tab.icon size={16} weight={activeTab === tab.id ? "fill" : "regular"} />
             <span className="text-[10px] font-bold uppercase tracking-wider">{tab.label}</span>
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent)]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--accent)] transition-all" />
             )}
           </button>
         ))}
