@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { useProjectStore } from '@/stores/useProjectStore';
+import { useResizableSidebar } from '@/hooks/useResizableSidebar';
 import { AGENT_LABELS } from '@/types';
 import { TerminalPanel } from '@/components/ide/TerminalPanel';
 import { GitPanel } from '@/components/ide/GitPanel';
@@ -20,6 +21,13 @@ export const RightSidebar: React.FC = () => {
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
 
+  const { width, isResizing, startResize } = useResizableSidebar({
+    storageKey: 'right-sidebar-width',
+    defaultWidth: 320,
+    minWidth: 250,
+    maxWidth: 600,
+  });
+
   const activeProject = projects.find((p) => p.id === activeProjectId);
   const projectPath = activeProject?.path || undefined;
 
@@ -34,7 +42,10 @@ export const RightSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col w-[var(--sidebar-width-right)]">
+    <aside 
+      className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col relative"
+      style={{ width: `${width}px` }}
+    >
       <div className="flex items-center border-b border-[var(--border)]">
         <button
           onClick={toggleRightSidebar}
@@ -179,6 +190,17 @@ export const RightSidebar: React.FC = () => {
             <p className="text-xs text-[var(--text-muted)]">Usage data will appear here once the session starts.</p>
           </div>
         )}
+      </div>
+
+      {/* Resize Handle */}
+      <div
+        className={cn(
+          "absolute top-0 bottom-0 left-0 w-1 cursor-ew-resize hover:bg-[var(--accent)] transition-colors z-50",
+          isResizing && "bg-[var(--accent)]"
+        )}
+        onMouseDown={(e) => startResize(e, 'right')}
+      >
+        <div className="absolute inset-y-0 -left-1 -right-1" />
       </div>
     </aside>
   );
