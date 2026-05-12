@@ -108,7 +108,7 @@ export function GitPanel({ repoPath }: GitPanelProps) {
       case 'untracked':
         return 'text-blue-500';
       default:
-        return 'text-gray-400';
+        return 'text-[var(--text-muted)]';
     }
   };
 

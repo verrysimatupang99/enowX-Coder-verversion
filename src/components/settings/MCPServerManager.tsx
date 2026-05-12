@@ -166,7 +166,7 @@ export const MCPServerManager: React.FC = () => {
                   className={`px-2 py-0.5 text-xs rounded ${
                     server.enabled
                       ? 'bg-green-500/20 text-green-400'
-                      : 'bg-gray-500/20 text-gray-400'
+                      : 'bg-[var(--surface-3)] text-[var(--text-muted)]'
                   }`}
                 >
                   {server.enabled ? 'Enabled' : 'Disabled'}
