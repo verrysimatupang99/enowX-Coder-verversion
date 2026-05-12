@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass } from '@phosphor-icons/react';
+import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, Spinner } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
@@ -81,24 +81,49 @@ export const RightSidebar: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'git' && projectPath && (
+        {activeTab === 'git' && (
           <div className="h-full -m-4">
-            <GitPanel repoPath={projectPath} />
+            {projectPath ? (
+              <GitPanel repoPath={projectPath} />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                <GitBranch size={48} weight="duotone" className="text-[var(--text-muted)] mb-4" />
+                <p className="text-sm font-medium text-[var(--text)]">No Project Selected</p>
+                <p className="text-xs text-[var(--text-muted)] mt-2">
+                  Select a project to view Git status
+                </p>
+              </div>
+            )}
           </div>
         )}
 
-        {activeTab === 'search' && projectPath && (
+        {activeTab === 'search' && (
           <div className="h-full -m-4">
-            <SearchPanel
-              rootPath={projectPath}
-              onClose={() => setActiveTab('agents')}
-            />
+            {projectPath ? (
+              <SearchPanel
+                rootPath={projectPath}
+                onClose={() => setActiveTab('agents')}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                <MagnifyingGlass size={48} weight="duotone" className="text-[var(--text-muted)] mb-4" />
+                <p className="text-sm font-medium text-[var(--text)]">No Project Selected</p>
+                <p className="text-xs text-[var(--text-muted)] mt-2">
+                  Select a project to search files
+                </p>
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'preview' && (
           <div className="h-full -m-4">
-            <Suspense fallback={<div className="flex items-center justify-center h-full text-[var(--text-muted)]">Loading editor...</div>}>
+            <Suspense fallback={
+              <div className="flex flex-col items-center justify-center h-full">
+                <CircleNotch size={32} weight="bold" className="text-[var(--accent)] animate-spin mb-3" />
+                <p className="text-xs text-[var(--text-muted)]">Loading editor...</p>
+              </div>
+            }>
               <CodePreview
                 content="// Select a file from the explorer to preview"
                 language="typescript"
@@ -114,19 +139,23 @@ export const RightSidebar: React.FC = () => {
               Active Agents
             </h3>
             {agentRuns.length === 0 ? (
-              <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/50 text-center space-y-2">
-                <div className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mx-auto">
-                  <TerminalWindow size={20} weight="duotone" className="text-[var(--text)]" />
+              <div className="p-6 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/50 text-center space-y-3 transition-all hover:bg-[var(--surface-2)]/70">
+                <div className="w-12 h-12 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mx-auto">
+                  <Robot size={24} weight="duotone" className="text-[var(--text-muted)]" />
                 </div>
-                <p className="text-xs font-medium">No agents running</p>
-                <p className="text-[10px] text-[var(--text-muted)]">Spawn an agent from the chat to see progress here.</p>
+                <div>
+                  <p className="text-xs font-medium text-[var(--text)]">No agents running</p>
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1">
+                    Spawn an agent from the chat to see progress here
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
                 {agentRuns.map((run) => (
                   <div
                     key={run.id}
-                    className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30 space-y-2"
+                    className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-2)]/30 space-y-2 transition-all hover:bg-[var(--surface-2)]/50 hover:border-[var(--accent)]/30"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -143,7 +172,7 @@ export const RightSidebar: React.FC = () => {
                           {AGENT_LABELS[run.agentType as keyof typeof AGENT_LABELS] || run.agentType}
                         </span>
                       </div>
-                      <span className="text-[10px] text-[var(--text-subtle)] uppercase tracking-wider">
+                      <span className="text-[10px] text-[var(--text-subtle)] uppercase tracking-wider font-semibold">
                         {run.status}
                       </span>
                     </div>
