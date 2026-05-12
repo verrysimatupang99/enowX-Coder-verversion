@@ -10,23 +10,51 @@ interface TokenSavings {
   created_at: string;
 }
 
+interface OptimizationSettings {
+  rtk_enabled: boolean;
+  caveman_enabled: boolean;
+  dcp_enabled: boolean;
+}
+
 export const TokenDashboard: React.FC = () => {
   const [savings, setSavings] = useState<TokenSavings[]>([]);
   const [totalSavings, setTotalSavings] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<OptimizationSettings>({
+    rtk_enabled: true,
+    caveman_enabled: true,
+    dcp_enabled: true,
+  });
 
   const loadData = async () => {
     try {
-      const [savingsData, total] = await Promise.all([
+      const [savingsData, total, settingsData] = await Promise.all([
         invoke<TokenSavings[]>('get_token_savings'),
         invoke<number>('get_total_token_savings'),
+        invoke<OptimizationSettings>('get_optimization_settings'),
       ]);
       setSavings(savingsData);
       setTotalSavings(total);
+      setSettings(settingsData);
     } catch (error) {
       console.error('Failed to load token savings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggle = async (key: keyof OptimizationSettings) => {
+    const newSettings = { ...settings, [key]: !settings[key] };
+    setSettings(newSettings);
+    try {
+      await invoke('update_optimization_settings', {
+        rtkEnabled: newSettings.rtk_enabled,
+        cavemanEnabled: newSettings.caveman_enabled,
+        dcpEnabled: newSettings.dcp_enabled,
+      });
+    } catch (error) {
+      console.error('Failed to update settings:', error);
+      setSettings(settings); // Revert on error
     }
   };
 
@@ -46,6 +74,59 @@ export const TokenDashboard: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[var(--text)]">Token Optimization</h3>
+      </div>
+
+      {/* Optimization Toggles */}
+      <div className="space-y-2 p-4 bg-[var(--surface)] border border-[var(--border)] rounded-lg">
+        <div className="text-xs font-semibold text-[var(--text)] mb-3">Optimization Settings</div>
+        
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <div className="text-sm text-[var(--text)]">RTK (Repetitive Token Killer)</div>
+            <div className="text-xs text-[var(--text-muted)]">Cache repetitive command outputs</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.rtk_enabled}
+              onChange={() => handleToggle('rtk_enabled')}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-[var(--border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <div className="text-sm text-[var(--text)]">Caveman Mode</div>
+            <div className="text-xs text-[var(--text-muted)]">Summarize long outputs</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.caveman_enabled}
+              onChange={() => handleToggle('caveman_enabled')}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-[var(--border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <div className="text-sm text-[var(--text)]">DCP (Duplicate Content Prevention)</div>
+            <div className="text-xs text-[var(--text-muted)]">Prevent duplicate context</div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.dcp_enabled}
+              onChange={() => handleToggle('dcp_enabled')}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-[var(--border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+          </label>
+        </div>
       </div>
 
       <div className="p-4 bg-gradient-to-br from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-lg">

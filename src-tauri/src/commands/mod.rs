@@ -11,4 +11,5 @@ pub mod provider;
 pub mod rtk;
 pub mod search;
 pub mod session;
+pub mod settings;
 pub mod terminal;

@@ -68,7 +68,20 @@ impl RTKService {
         }
     }
 
-    pub fn should_filter(&self, command: &str) -> Option<FilterAction> {
+    pub async fn should_filter(&self, command: &str, db: &SqlitePool) -> Option<FilterAction> {
+        // Check if RTK is enabled
+        let enabled: Result<(bool,), sqlx::Error> = sqlx::query_as(
+            "SELECT rtk_enabled FROM settings WHERE id = 1"
+        )
+        .fetch_one(db)
+        .await;
+        
+        if let Ok((rtk_enabled,)) = enabled {
+            if !rtk_enabled {
+                return None;
+            }
+        }
+        
         if let Ok(filters) = self.filters.lock() {
             for filter in filters.iter() {
                 if command.starts_with(&filter.command) {
