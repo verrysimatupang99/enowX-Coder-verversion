@@ -17,6 +17,8 @@ type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 's
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
   const toggleRightSidebar = useUIStore((s) => s.toggleRightSidebar);
+  const rightSidebarCollapsed = useUIStore((s) => s.rightSidebarCollapsed);
+  const toggleRightSidebarCollapsed = useUIStore((s) => s.toggleRightSidebarCollapsed);
   const agentRuns = useAgentStore((s) => s.agentRuns);
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
@@ -41,6 +43,46 @@ export const RightSidebar: React.FC = () => {
     { id: 'metrics' as Tab, icon: ChartBar, label: 'Metrics' },
   ];
 
+  const handleTabClick = (tabId: Tab) => {
+    if (rightSidebarCollapsed) {
+      toggleRightSidebarCollapsed();
+    }
+    setActiveTab(tabId);
+  };
+
+  if (rightSidebarCollapsed) {
+    return (
+      <aside 
+        className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col items-center py-4 gap-3"
+        style={{ width: '48px' }}
+      >
+        {/* Tab Icons */}
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabClick(tab.id)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+            title={tab.label}
+          >
+            <tab.icon size={16} weight="fill" />
+          </button>
+        ))}
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Expand Button */}
+        <button
+          onClick={toggleRightSidebarCollapsed}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          title="Expand"
+        >
+          <SidebarSimple size={16} weight="fill" className="scale-x-[-1]" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside 
       className="h-full bg-[var(--surface)] border-l border-[var(--border)] flex flex-col relative"
@@ -48,9 +90,9 @@ export const RightSidebar: React.FC = () => {
     >
       <div className="flex items-center border-b border-[var(--border)]">
         <button
-          onClick={toggleRightSidebar}
+          onClick={toggleRightSidebarCollapsed}
           className="p-2.5 text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors shrink-0"
-          title="Hide panel"
+          title="Collapse panel"
         >
           <SidebarSimple size={16} weight="fill" className="scale-x-[-1]" />
         </button>

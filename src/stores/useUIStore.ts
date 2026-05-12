@@ -7,9 +7,13 @@ interface UIState {
   leftSidebarOpen: boolean;
   toggleLeftSidebar: () => void;
   setLeftSidebarOpen: (open: boolean) => void;
+  leftSidebarCollapsed: boolean;
+  toggleLeftSidebarCollapsed: () => void;
   rightSidebarOpen: boolean;
   toggleRightSidebar: () => void;
   setRightSidebarOpen: (open: boolean) => void;
+  rightSidebarCollapsed: boolean;
+  toggleRightSidebarCollapsed: () => void;
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
   theme: Theme;
@@ -33,9 +37,13 @@ export const useUIStore = create<UIState>((set) => ({
   leftSidebarOpen: true,
   toggleLeftSidebar: () => set((s) => ({ leftSidebarOpen: !s.leftSidebarOpen })),
   setLeftSidebarOpen: (open) => set({ leftSidebarOpen: open }),
+  leftSidebarCollapsed: false,
+  toggleLeftSidebarCollapsed: () => set((s) => ({ leftSidebarCollapsed: !s.leftSidebarCollapsed })),
   rightSidebarOpen: true,
   toggleRightSidebar: () => set((s) => ({ rightSidebarOpen: !s.rightSidebarOpen })),
   setRightSidebarOpen: (open) => set({ rightSidebarOpen: open }),
+  rightSidebarCollapsed: false,
+  toggleRightSidebarCollapsed: () => set((s) => ({ rightSidebarCollapsed: !s.rightSidebarCollapsed })),
   settingsOpen: false,
   setSettingsOpen: (open) => set({ settingsOpen: open }),
   theme: getStoredTheme(),

@@ -13,6 +13,8 @@ type SidebarTab = 'files' | 'history';
 export const LeftSidebar: React.FC = () => {
   const setSettingsOpen = useUIStore((s) => s.setSettingsOpen);
   const toggleLeftSidebar = useUIStore((s) => s.toggleLeftSidebar);
+  const leftSidebarCollapsed = useUIStore((s) => s.leftSidebarCollapsed);
+  const toggleLeftSidebarCollapsed = useUIStore((s) => s.toggleLeftSidebarCollapsed);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
   const projects = useProjectStore((s) => s.projects);
   const [activeTab, setActiveTab] = useState<SidebarTab>('files');
@@ -29,6 +31,64 @@ export const LeftSidebar: React.FC = () => {
 
   const activeProject = projects.find((p) => p.id === activeProjectId);
 
+  const handleTabClick = (tab: SidebarTab) => {
+    if (leftSidebarCollapsed) {
+      toggleLeftSidebarCollapsed();
+    }
+    setActiveTab(tab);
+  };
+
+  if (leftSidebarCollapsed) {
+    return (
+      <aside 
+        className="h-full bg-[var(--surface)] border-r border-[var(--border)] flex flex-col items-center py-4 gap-3"
+        style={{ width: '48px' }}
+      >
+        {/* Logo */}
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent)] to-blue-500 flex items-center justify-center text-white font-bold text-xs">
+          eX
+        </div>
+
+        {/* Tab Icons */}
+        <button
+          onClick={() => handleTabClick('files')}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          title="Files"
+        >
+          <Files size={16} weight="fill" />
+        </button>
+        <button
+          onClick={() => handleTabClick('history')}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          title="History"
+        >
+          <ClockCounterClockwise size={16} weight="fill" />
+        </button>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Settings */}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          title="Settings"
+        >
+          <GearSix size={16} weight="fill" />
+        </button>
+
+        {/* Expand Button */}
+        <button
+          onClick={toggleLeftSidebarCollapsed}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors"
+          title="Expand"
+        >
+          <SidebarSimple size={16} weight="fill" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside 
       className="h-full bg-[var(--surface)] border-r border-[var(--border)] flex flex-col relative"
@@ -36,9 +96,9 @@ export const LeftSidebar: React.FC = () => {
     >
       <div className="flex items-center gap-2 p-4 border-b border-[var(--border)]">
         <button
-          onClick={toggleLeftSidebar}
+          onClick={toggleLeftSidebarCollapsed}
           className="w-7 h-7 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors"
-          title="Toggle sidebar"
+          title="Collapse sidebar"
         >
           <SidebarSimple size={15} weight="fill" className="text-[var(--text)]" />
         </button>
