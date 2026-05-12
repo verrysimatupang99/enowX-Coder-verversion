@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, Spinner, GearSix } from '@phosphor-icons/react';
+import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, GearSix } from '@phosphor-icons/react';
 import { ResizeHandle } from '@/components/common/ResizeHandle';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
@@ -17,7 +17,6 @@ type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 's
 
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
-  const toggleRightSidebar = useUIStore((s) => s.toggleRightSidebar);
   const rightSidebarCollapsed = useUIStore((s) => s.rightSidebarCollapsed);
   const toggleRightSidebarCollapsed = useUIStore((s) => s.toggleRightSidebarCollapsed);
   const agentRuns = useAgentStore((s) => s.agentRuns);
