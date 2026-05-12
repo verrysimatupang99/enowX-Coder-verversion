@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, Spinner } from '@phosphor-icons/react';
+import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, Spinner, GearSix } from '@phosphor-icons/react';
 import { ResizeHandle } from '@/components/common/ResizeHandle';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
