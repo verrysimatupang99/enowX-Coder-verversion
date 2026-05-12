@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface UseResizableSidebarOptions {
   storageKey: string;
   defaultWidth: number;
   minWidth?: number;
   maxWidth?: number;
+  side: 'left' | 'right';
 }
 
 export function useResizableSidebar({
@@ -12,6 +13,7 @@ export function useResizableSidebar({
   defaultWidth,
   minWidth = 200,
   maxWidth = 600,
+  side,
 }: UseResizableSidebarOptions) {
   const [width, setWidth] = useState(() => {
     const stored = localStorage.getItem(storageKey);
@@ -24,35 +26,14 @@ export function useResizableSidebar({
     localStorage.setItem(storageKey, width.toString());
   }, [width, storageKey]);
 
-  const startResize = (e: React.MouseEvent, side: 'left' | 'right') => {
-    e.preventDefault();
-    setIsResizing(true);
+  const handleResize = useCallback((delta: number) => {
+    setWidth(prev => {
+      // Left sidebar: drag right (+delta) = increase width
+      // Right sidebar: drag left (-delta) = increase width
+      const newWidth = side === 'left' ? prev + delta : prev - delta;
+      return Math.max(minWidth, Math.min(maxWidth, newWidth));
+    });
+  }, [side, minWidth, maxWidth]);
 
-    const startX = e.clientX;
-    const startWidth = width;
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const delta = side === 'left' 
-        ? moveEvent.clientX - startX  // drag right = positive = increase
-        : startX - moveEvent.clientX; // drag left = positive = increase (inverted)
-
-      const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + delta));
-      setWidth(newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.body.style.cursor = 'ew-resize';
-    document.body.style.userSelect = 'none';
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
-  return { width, isResizing, startResize };
+  return { width, isResizing, setIsResizing, handleResize };
 }

@@ -2,36 +2,56 @@ import React, { useCallback, useEffect, useRef } from 'react';
 
 interface ResizeHandleProps {
   onResize: (delta: number) => void;
-  direction: 'horizontal' | 'vertical';
+  onResizeStart?: () => void;
+  onResizeEnd?: () => void;
+  side: 'left' | 'right';
   className?: string;
 }
 
 export const ResizeHandle: React.FC<ResizeHandleProps> = ({
   onResize,
-  direction,
+  onResizeStart,
+  onResizeEnd,
+  side,
   className = '',
 }) => {
   const isDragging = useRef(false);
-  const startPos = useRef(0);
+  const lastPos = useRef(0);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    isDragging.current = true;
-    startPos.current = direction === 'horizontal' ? e.clientX : e.clientY;
     e.preventDefault();
-  }, [direction]);
+    e.stopPropagation();
+    
+    isDragging.current = true;
+    lastPos.current = e.clientX;
+    
+    if (onResizeStart) onResizeStart();
+    
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  }, [onResizeStart]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
 
-      const currentPos = direction === 'horizontal' ? e.clientX : e.clientY;
-      const delta = currentPos - startPos.current;
-      startPos.current = currentPos;
-      onResize(delta);
+      const delta = e.clientX - lastPos.current;
+      lastPos.current = e.clientX;
+      
+      // Only call onResize if delta is significant (reduce jitter)
+      if (Math.abs(delta) > 0) {
+        onResize(delta);
+      }
     };
 
     const handleMouseUp = () => {
+      if (!isDragging.current) return;
+      
       isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      
+      if (onResizeEnd) onResizeEnd();
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -41,33 +61,35 @@ export const ResizeHandle: React.FC<ResizeHandleProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [direction, onResize]);
+  }, [onResize, onResizeEnd]);
 
   return (
     <div
-      className={`resize-handle ${direction} ${className}`}
+      className={`resize-handle ${className}`}
       onMouseDown={handleMouseDown}
       style={{
-        cursor: direction === 'horizontal' ? 'col-resize' : 'row-resize',
-        width: direction === 'horizontal' ? '4px' : '100%',
-        height: direction === 'vertical' ? '4px' : '100%',
-        backgroundColor: 'transparent',
-        position: 'relative',
-        zIndex: 10,
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        [side === 'left' ? 'right' : 'left']: -2,
+        width: '8px',
+        cursor: 'ew-resize',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
+      {/* Visible indicator on hover */}
       <div
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          width: '2px',
+          height: '100%',
           backgroundColor: 'var(--border)',
           opacity: 0,
-          transition: 'opacity 0.2s',
+          transition: 'opacity 0.2s, background-color 0.2s',
         }}
-        className="hover:opacity-100"
+        className="hover:opacity-100 hover:bg-[var(--accent)]"
       />
     </div>
   );

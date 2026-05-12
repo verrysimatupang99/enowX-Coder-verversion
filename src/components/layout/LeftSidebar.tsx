@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
 import { SessionList } from '@/components/sidebar/SessionList';
 import { FileTree } from '@/components/ide/FileTree';
+import { ResizeHandle } from '@/components/common/ResizeHandle';
 import { SidebarSimple, GearSix, Files, ClockCounterClockwise, CaretDown, MagnifyingGlass } from '@phosphor-icons/react';
 import { useUIStore } from '@/stores/useUIStore';
 import { useProjectStore } from '@/stores/useProjectStore';
@@ -22,11 +23,12 @@ export const LeftSidebar: React.FC = () => {
   const [filesExpanded, setFilesExpanded] = useState(true);
   const [historyExpanded, setHistoryExpanded] = useState(true);
 
-  const { width, isResizing, startResize } = useResizableSidebar({
+  const { width, isResizing, setIsResizing, handleResize } = useResizableSidebar({
     storageKey: 'left-sidebar-width',
     defaultWidth: 260,
     minWidth: 200,
     maxWidth: 500,
+    side: 'left',
   });
 
   const activeProject = projects.find((p) => p.id === activeProjectId);
@@ -182,15 +184,12 @@ export const LeftSidebar: React.FC = () => {
       </div>
 
       {/* Resize Handle */}
-      <div
-        className={cn(
-          "absolute top-0 bottom-0 right-0 w-1 cursor-ew-resize hover:bg-[var(--accent)] transition-colors z-50",
-          isResizing && "bg-[var(--accent)]"
-        )}
-        onMouseDown={(e) => startResize(e, 'left')}
-      >
-        <div className="absolute inset-y-0 -left-1 -right-1" />
-      </div>
+      <ResizeHandle
+        side="left"
+        onResize={handleResize}
+        onResizeStart={() => setIsResizing(true)}
+        onResizeEnd={() => setIsResizing(false)}
+      />
     </aside>
   );
 };

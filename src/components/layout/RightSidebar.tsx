@@ -1,5 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Robot, Code, ChartBar, TerminalWindow, Cpu, Books, SidebarSimple, CircleNotch, CheckCircle, XCircle, GitBranch, FileCode, MagnifyingGlass, Spinner } from '@phosphor-icons/react';
+import { ResizeHandle } from '@/components/common/ResizeHandle';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 import { useAgentStore } from '@/stores/useAgentStore';
@@ -23,11 +24,12 @@ export const RightSidebar: React.FC = () => {
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
 
-  const { width, isResizing, startResize } = useResizableSidebar({
+  const { width, isResizing, setIsResizing, handleResize } = useResizableSidebar({
     storageKey: 'right-sidebar-width',
     defaultWidth: 320,
     minWidth: 250,
     maxWidth: 600,
+    side: 'right',
   });
 
   const activeProject = projects.find((p) => p.id === activeProjectId);
@@ -264,15 +266,12 @@ export const RightSidebar: React.FC = () => {
       </div>
 
       {/* Resize Handle */}
-      <div
-        className={cn(
-          "absolute top-0 bottom-0 left-0 w-1 cursor-ew-resize hover:bg-[var(--accent)] transition-colors z-50",
-          isResizing && "bg-[var(--accent)]"
-        )}
-        onMouseDown={(e) => startResize(e, 'right')}
-      >
-        <div className="absolute inset-y-0 -left-1 -right-1" />
-      </div>
+      <ResizeHandle
+        side="right"
+        onResize={handleResize}
+        onResizeStart={() => setIsResizing(true)}
+        onResizeEnd={() => setIsResizing(false)}
+      />
     </aside>
   );
 };
