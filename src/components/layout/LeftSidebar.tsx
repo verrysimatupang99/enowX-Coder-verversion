@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProjectSwitcher } from '@/components/sidebar/ProjectSwitcher';
 import { SessionList } from '@/components/sidebar/SessionList';
-import { FileExplorer } from '@/components/ide/FileExplorer';
+import { FileTree } from '@/components/ide/FileTree';
 import { SidebarSimple, GearSix, Files, ClockCounterClockwise } from '@phosphor-icons/react';
 import { useUIStore } from '@/stores/useUIStore';
 import { useProjectStore } from '@/stores/useProjectStore';
@@ -81,7 +81,7 @@ export const LeftSidebar: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {activeTab === 'files' && activeProject?.path && (
-            <FileExplorer projectPath={activeProject.path} />
+            <FileTree projectPath={activeProject.path} />
           )}
           {activeTab === 'history' && <SessionList />}
         </div>

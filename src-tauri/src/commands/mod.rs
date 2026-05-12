@@ -2,6 +2,7 @@ pub mod agent;
 pub mod chat;
 pub mod drawing;
 pub mod file;
+pub mod filesystem;
 pub mod git;
 pub mod mcp;
 pub mod plugin;
