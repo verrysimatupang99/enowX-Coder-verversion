@@ -271,15 +271,13 @@ export const RightSidebar: React.FC = () => {
         )}
 
         {activeTab === 'settings' && (
-          <div className="space-y-4 text-center py-10">
-            <GearSix size={48} weight="duotone" className="text-[var(--accent)] mx-auto mb-2" />
-            <h3 className="text-sm font-bold">Settings</h3>
-            <p className="text-xs text-[var(--text-muted)] mb-4">Configure your workspace preferences</p>
+          <div className="flex-1 flex items-center justify-center">
             <button
               onClick={() => useUIStore.getState().setSettingsOpen(true)}
-              className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-xs font-medium hover:bg-[var(--accent)]/90 transition-colors"
+              className="flex flex-col items-center gap-3 p-6 rounded-xl hover:bg-[var(--surface-2)] transition-colors"
             >
-              Open Settings
+              <GearSix size={48} weight="duotone" className="text-[var(--accent)]" />
+              <span className="text-sm font-medium text-[var(--text)]">Settings</span>
             </button>
           </div>
         )}

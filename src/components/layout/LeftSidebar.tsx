@@ -98,14 +98,6 @@ export const LeftSidebar: React.FC = () => {
         >
           <SidebarSimple size={15} weight="fill" className="text-[var(--text)]" />
         </button>
-
-        <button
-          onClick={() => setSettingsOpen(true)}
-          className="w-7 h-7 rounded-lg bg-[var(--surface-3)] border border-[var(--border)] flex items-center justify-center hover:bg-[var(--surface-2)] transition-colors ml-auto"
-          title="Settings"
-        >
-          <GearSix size={15} weight="fill" className="text-[var(--text)]" />
-        </button>
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
