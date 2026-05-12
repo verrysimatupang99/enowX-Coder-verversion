@@ -1,5 +1,6 @@
 use futures_util::StreamExt;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::SqlitePool;
 use tauri::ipc::Channel;
@@ -13,6 +14,16 @@ use crate::{
 };
 
 use super::{now_rfc3339, provider_service};
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct SearchResult {
+    pub session_id: String,
+    pub session_title: String,
+    pub message_id: String,
+    pub role: String,
+    pub content: String,
+    pub rank: f64,
+}
 
 pub async fn get_messages(db: &SqlitePool, session_id: &str) -> AppResult<Vec<Message>> {
     let messages = sqlx::query_as::<_, Message>(
@@ -758,4 +769,52 @@ pub async fn generate_excalidraw(
         .to_string();
 
     Ok(cleaned)
+}
+
+pub async fn search_sessions(
+    db: &SqlitePool,
+    query: &str,
+    project_id: Option<&str>,
+) -> AppResult<Vec<SearchResult>> {
+    let sql = if let Some(pid) = project_id {
+        r#"
+        SELECT 
+            m.session_id,
+            s.title as session_title,
+            fts.message_id,
+            fts.role,
+            fts.content,
+            fts.rank
+        FROM messages_fts fts
+        JOIN messages m ON m.id = fts.message_id
+        JOIN sessions s ON s.id = m.session_id
+        WHERE messages_fts MATCH ?1 AND s.project_id = ?2
+        ORDER BY fts.rank
+        LIMIT 50
+        "#
+    } else {
+        r#"
+        SELECT 
+            m.session_id,
+            s.title as session_title,
+            fts.message_id,
+            fts.role,
+            fts.content,
+            fts.rank
+        FROM messages_fts fts
+        JOIN messages m ON m.id = fts.message_id
+        JOIN sessions s ON s.id = m.session_id
+        WHERE messages_fts MATCH ?1
+        ORDER BY fts.rank
+        LIMIT 50
+        "#
+    };
+
+    let mut query_builder = sqlx::query_as::<_, SearchResult>(sql).bind(query);
+    if let Some(pid) = project_id {
+        query_builder = query_builder.bind(pid);
+    }
+
+    let results = query_builder.fetch_all(db).await?;
+    Ok(results)
 }

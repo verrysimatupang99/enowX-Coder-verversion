@@ -1,7 +1,12 @@
 use tauri::ipc::Channel;
 use tauri::{AppHandle, State};
 
-use crate::{error::AppResult, models::Message, services::chat_service, state::AppState};
+use crate::{
+    error::AppResult,
+    models::Message,
+    services::chat_service::{self, SearchResult},
+    state::AppState,
+};
 
 #[tauri::command]
 pub async fn get_messages(
@@ -79,4 +84,13 @@ pub async fn generate_title(
         model_id.as_deref(),
     )
     .await
+}
+
+#[tauri::command]
+pub async fn search_sessions(
+    state: State<'_, AppState>,
+    query: String,
+    project_id: Option<String>,
+) -> AppResult<Vec<SearchResult>> {
+    chat_service::search_sessions(state.pool(), &query, project_id.as_deref()).await
 }
