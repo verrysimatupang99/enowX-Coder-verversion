@@ -100,18 +100,3 @@ export const LeftSidebar: React.FC = () => {
     </aside>
   );
 };
-
-      {/* Resize Handle */}
-      <div
-        className={cn(
-          "absolute top-0 bottom-0 right-0 w-1 cursor-ew-resize z-50",
-          "hover:bg-[var(--accent)] transition-colors",
-          isResizing && "bg-[var(--accent)]"
-        )}
-        onMouseDown={(e) => startResize(e, 'left')}
-      >
-        <div className="absolute inset-y-0 -left-1 -right-1" />
-      </div>
-    </aside>
-  );
-};

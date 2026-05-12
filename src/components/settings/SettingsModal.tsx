@@ -4,6 +4,7 @@ import { useUIStore } from '@/stores/useUIStore';
 import { ProvidersTab } from './ProvidersTab';
 import { AgentsTab } from './AgentsTab';
 import { MCPServerManager } from './MCPServerManager';
+import { PluginManager } from './PluginManager';
 import { TokenDashboard } from './TokenDashboard';
 import { cn } from '@/lib/utils';
 
@@ -99,8 +100,15 @@ export const SettingsModal: React.FC = () => {
           {activeTab === 'agents' && <AgentsTab />}
           
           {activeTab === 'tools' && (
-            <div className="overflow-y-auto h-full">
-              <MCPServerManager />
+            <div className="overflow-y-auto h-full space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text)] mb-3">MCP Servers</h3>
+                <MCPServerManager />
+              </div>
+              <div className="border-t border-[var(--border)] pt-6">
+                <h3 className="text-sm font-semibold text-[var(--text)] mb-3">Plugins</h3>
+                <PluginManager />
+              </div>
             </div>
           )}
 
