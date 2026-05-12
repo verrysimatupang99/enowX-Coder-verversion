@@ -115,7 +115,7 @@ export const RightSidebar: React.FC = () => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabClick(tab.id)}
               className={cn(
                 "flex flex-col items-center justify-center gap-1.5 py-2.5 rounded-lg transition-all",
                 activeTab === tab.id 
