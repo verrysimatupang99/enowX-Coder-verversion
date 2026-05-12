@@ -242,6 +242,18 @@ async fn send_openai_compatible(
         return Err(AppError::Http(format!("{status}: {body}")));
     }
 
+    // Check content-type before parsing
+    let content_type = response.headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_string(); // Clone to avoid borrow
+    
+    if !content_type.contains("text/event-stream") && !content_type.contains("application/json") {
+        let body_text = response.text().await.unwrap_or_default();
+        return Err(AppError::Http(format!("Unexpected content-type: {content_type}. Body: {}", body_text.chars().take(500).collect::<String>())));
+    }
+
     stream_openai_sse(response, on_token, cancel_token).await
 }
 

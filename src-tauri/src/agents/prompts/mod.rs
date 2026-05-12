@@ -12,8 +12,14 @@ pub mod ux_researcher;
 
 pub fn get_prompt(agent_type: &str) -> Option<&'static str> {
     match agent_type {
-        "orchestrator" => Some(orchestrator::SYSTEM_PROMPT),
+        // Core 5 agents
+        "chat" => Some(researcher::SYSTEM_PROMPT), // Fallback to researcher for general chat
         "planner" => Some(planner::SYSTEM_PROMPT),
+        "orchestrator" => Some(orchestrator::SYSTEM_PROMPT),
+        "coder" => Some(coder_fe::SYSTEM_PROMPT), // Use coder_fe as base for all coding
+        "researcher" => Some(researcher::SYSTEM_PROMPT),
+        
+        // Legacy agents (backward compatibility)
         "coder_fe" => Some(coder_fe::SYSTEM_PROMPT),
         "coder_be" => Some(coder_be::SYSTEM_PROMPT),
         "security" => Some(security::SYSTEM_PROMPT),
@@ -21,7 +27,6 @@ pub fn get_prompt(agent_type: &str) -> Option<&'static str> {
         "ui_designer" => Some(ui_designer::SYSTEM_PROMPT),
         "tester" => Some(tester::SYSTEM_PROMPT),
         "reviewer" => Some(reviewer::SYSTEM_PROMPT),
-        "researcher" => Some(researcher::SYSTEM_PROMPT),
         "librarian" => Some(librarian::SYSTEM_PROMPT),
         _ => None,
     }
