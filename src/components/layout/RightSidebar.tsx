@@ -50,6 +50,13 @@ export const RightSidebar: React.FC = () => {
     if (rightSidebarCollapsed) {
       toggleRightSidebarCollapsed();
     }
+    
+    // Settings tab opens modal directly
+    if (tabId === 'settings') {
+      useUIStore.getState().setSettingsOpen(true);
+      return;
+    }
+    
     setActiveTab(tabId);
   };
 
@@ -267,18 +274,6 @@ export const RightSidebar: React.FC = () => {
             <ChartBar size={48} weight="duotone" className="text-[var(--border)] mx-auto mb-2" />
             <h3 className="text-sm font-bold">Session Metrics</h3>
             <p className="text-xs text-[var(--text-muted)]">Usage data will appear here once the session starts.</p>
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div className="flex-1 flex items-center justify-center">
-            <button
-              onClick={() => useUIStore.getState().setSettingsOpen(true)}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl hover:bg-[var(--surface-2)] transition-colors"
-            >
-              <GearSix size={48} weight="duotone" className="text-[var(--accent)]" />
-              <span className="text-sm font-medium text-[var(--text)]">Settings</span>
-            </button>
           </div>
         )}
       </div>
