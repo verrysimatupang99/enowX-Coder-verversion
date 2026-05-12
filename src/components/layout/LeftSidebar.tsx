@@ -82,15 +82,6 @@ export const LeftSidebar: React.FC = () => {
 
         {/* Spacer */}
         <div className="flex-1" />
-
-        {/* Settings */}
-        <button
-          onClick={() => setSettingsOpen(true)}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors mb-2"
-          title="Settings"
-        >
-          <GearSix size={16} weight="fill" />
-        </button>
       </aside>
     );
   }

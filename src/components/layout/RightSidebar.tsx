@@ -13,7 +13,7 @@ import { SearchPanel } from '@/components/ide/SearchPanel';
 
 const CodePreview = lazy(() => import('@/components/ide/CodePreview').then(m => ({ default: m.CodePreview })));
 
-type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 'search';
+type Tab = 'agents' | 'skills' | 'metrics' | 'terminal' | 'git' | 'preview' | 'search' | 'settings';
 
 export const RightSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('agents');
@@ -43,6 +43,7 @@ export const RightSidebar: React.FC = () => {
     { id: 'preview' as Tab, icon: FileCode, label: 'Preview' },
     { id: 'skills' as Tab, icon: Books, label: 'Skills' },
     { id: 'metrics' as Tab, icon: ChartBar, label: 'Metrics' },
+    { id: 'settings' as Tab, icon: GearSix, label: 'Settings' },
   ];
 
   const handleTabClick = (tabId: Tab) => {
@@ -266,6 +267,20 @@ export const RightSidebar: React.FC = () => {
             <ChartBar size={48} weight="duotone" className="text-[var(--border)] mx-auto mb-2" />
             <h3 className="text-sm font-bold">Session Metrics</h3>
             <p className="text-xs text-[var(--text-muted)]">Usage data will appear here once the session starts.</p>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="space-y-4 text-center py-10">
+            <GearSix size={48} weight="duotone" className="text-[var(--accent)] mx-auto mb-2" />
+            <h3 className="text-sm font-bold">Settings</h3>
+            <p className="text-xs text-[var(--text-muted)] mb-4">Configure your workspace preferences</p>
+            <button
+              onClick={() => useUIStore.getState().setSettingsOpen(true)}
+              className="px-4 py-2 bg-[var(--accent)] text-white rounded-lg text-xs font-medium hover:bg-[var(--accent)]/90 transition-colors"
+            >
+              Open Settings
+            </button>
           </div>
         )}
       </div>
