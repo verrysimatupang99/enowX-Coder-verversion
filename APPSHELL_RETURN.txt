@@ -1,0 +1,33 @@
+  return (
+    <div className="bg-[var(--bg)] text-[var(--text)] h-screen w-screen overflow-hidden flex">
+      {/* Left Sidebar */}
+      {leftSidebarOpen && <LeftSidebar />}
+
+      {/* Main Content */}
+      <main className="flex flex-col overflow-hidden min-h-0 flex-1">
+        <ChatHeader onToggleLeftSidebar={!leftSidebarOpen ? toggleLeftSidebar : undefined} />
+        {mainView === 'chat' ? (
+          <>
+            <ChatPanel onChipClick={(text) => chatInputRef.current?.prefill(text)} />
+            <ChatInputBar ref={chatInputRef} onSend={handleSend} onStop={handleStop} />
+          </>
+        ) : (
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-[var(--text-muted)]">Loading canvas...</div>}>
+            <ExcalidrawCanvas />
+          </Suspense>
+        )}
+      </main>
+
+      {/* Right Sidebar */}
+      {rightSidebarOpen && <RightSidebar />}
+
+      <SettingsModal />
+
+      <PermissionDialog
+        request={pendingPermission}
+        onAllow={handlePermissionAllow}
+        onDeny={handlePermissionDeny}
+      />
+    </div>
+  );
+};

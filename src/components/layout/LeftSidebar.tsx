@@ -23,7 +23,7 @@ export const LeftSidebar: React.FC = () => {
   const [filesExpanded, setFilesExpanded] = useState(true);
   const [historyExpanded, setHistoryExpanded] = useState(true);
 
-  const { width, isResizing, setIsResizing, handleResize } = useResizableSidebar({
+  const { width, isResizing, handleMouseDown } = useResizableSidebar({
     storageKey: 'left-sidebar-width',
     defaultWidth: 260,
     minWidth: 200,
@@ -186,9 +186,8 @@ export const LeftSidebar: React.FC = () => {
       {/* Resize Handle */}
       <ResizeHandle
         side="left"
-        onResize={handleResize}
-        onResizeStart={() => setIsResizing(true)}
-        onResizeEnd={() => setIsResizing(false)}
+        onMouseDown={handleMouseDown}
+        isResizing={isResizing}
       />
     </aside>
   );

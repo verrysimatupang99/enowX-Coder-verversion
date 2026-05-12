@@ -579,23 +579,10 @@ export const AppShell: React.FC = () => {
   };
 
   return (
-    <div
-      className="bg-[var(--bg)] text-[var(--text)] h-screen w-screen overflow-hidden"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: `${leftSidebarOpen ? 'var(--sidebar-width-left)' : '0px'} 1fr ${rightSidebarOpen ? 'var(--sidebar-width-right)' : '0px'}`,
-        gridTemplateRows: '1fr',
-        transition: 'grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-      }}
-    >
-      <div className={cn(
-        'h-full overflow-hidden transition-opacity duration-200',
-        leftSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      )}>
-        <LeftSidebar />
-      </div>
+    <div className="bg-[var(--bg)] text-[var(--text)] h-screen w-screen overflow-hidden flex">
+      {leftSidebarOpen && <LeftSidebar />}
 
-      <main className="flex flex-col overflow-hidden min-h-0">
+      <main className="flex flex-col overflow-hidden min-h-0 flex-1">
         <ChatHeader onToggleLeftSidebar={!leftSidebarOpen ? toggleLeftSidebar : undefined} />
         {mainView === 'chat' ? (
           <>
@@ -609,12 +596,7 @@ export const AppShell: React.FC = () => {
         )}
       </main>
 
-      <div className={cn(
-        'h-full overflow-hidden transition-opacity duration-200',
-        rightSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      )}>
-        <RightSidebar />
-      </div>
+      {rightSidebarOpen && <RightSidebar />}
 
       <SettingsModal />
 

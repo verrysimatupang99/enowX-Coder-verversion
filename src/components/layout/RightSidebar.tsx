@@ -24,7 +24,7 @@ export const RightSidebar: React.FC = () => {
   const projects = useProjectStore((s) => s.projects);
   const activeProjectId = useProjectStore((s) => s.activeProjectId);
 
-  const { width, isResizing, setIsResizing, handleResize } = useResizableSidebar({
+  const { width, isResizing, handleMouseDown } = useResizableSidebar({
     storageKey: 'right-sidebar-width',
     defaultWidth: 320,
     minWidth: 250,
@@ -268,9 +268,8 @@ export const RightSidebar: React.FC = () => {
       {/* Resize Handle */}
       <ResizeHandle
         side="right"
-        onResize={handleResize}
-        onResizeStart={() => setIsResizing(true)}
-        onResizeEnd={() => setIsResizing(false)}
+        onMouseDown={handleMouseDown}
+        isResizing={isResizing}
       />
     </aside>
   );
