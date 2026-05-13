@@ -717,6 +717,13 @@ impl AgentRunner {
         if matches!(ctx.agent_type, "orchestrator" | "planner") {
             let subagent_tasks = parse_subagent_tasks(&output);
             if !subagent_tasks.is_empty() {
+                // Emit phase: delegation started
+                self.emit_orchestrator_phase(
+                    agent_run_id,
+                    "delegation",
+                    &format!("Delegating {} tasks to specialist agents", subagent_tasks.len()),
+                );
+
                 let parent_id = agent_run_id.to_string();
                 let provider_id_owned = ctx.provider_id.map(std::string::ToString::to_string);
                 let model_id_owned = ctx.model_id.map(std::string::ToString::to_string);
@@ -731,6 +738,15 @@ impl AgentRunner {
                     let model_id_owned = model_id_owned.clone();
                     let agent_type_owned = subagent.agent_type.clone();
                     let task_owned = subagent.task.clone();
+
+                    // Emit delegation event (sub_agent_run_id will be generated in run_subagent_internal)
+                    self.emit_orchestrator_delegate(
+                        agent_run_id,
+                        &agent_type_owned,
+                        &task_owned,
+                        "Specialist agent for subtask execution",
+                        "pending", // Placeholder, actual ID generated later
+                    );
 
                     let future = async move {
                         let params = SubagentParams {
@@ -769,12 +785,26 @@ impl AgentRunner {
                 }
 
                 if !reports.is_empty() {
+                    // Emit aggregate event
+                    self.emit_orchestrator_aggregate(
+                        agent_run_id,
+                        reports.len(),
+                        "Synthesizing results from all subagents",
+                    );
+
                     let synthesis_prompt = format!(
                         "Subagent reports:\n\n{}\n\nProvide a final synthesis that integrates all reports.",
                         reports.join("\n\n---\n\n")
                     );
 
                     messages.push(ConversationMessage::user(&synthesis_prompt));
+
+                    // Emit phase: synthesis
+                    self.emit_orchestrator_phase(
+                        agent_run_id,
+                        "synthesis",
+                        "Integrating subagent results into final output",
+                    );
 
                     let synthesis_output = self
                         .run_react_loop(
@@ -793,6 +823,13 @@ impl AgentRunner {
                     if !synthesis_output.trim().is_empty() {
                         output = synthesis_output;
                     }
+
+                    // Emit decision event
+                    self.emit_orchestrator_decision(
+                        agent_run_id,
+                        "synthesis_complete",
+                        &format!("Integrated {} subagent results into final output", reports.len()),
+                    );
                 }
             }
         }
@@ -2051,6 +2088,28 @@ fn openai_tool_definitions() -> Vec<Value> {
                         "query": { "type": "string" }
                     },
                     "required": ["query"]
+                }
+            }
+        }),
+        json!({
+            "type": "function",
+            "function": {
+                "name": "delegate_task",
+                "description": "Delegate a subtask to a specialist agent. Use this when you need specialized expertise (coder_fe, coder_be, tester, reviewer, etc.)",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "agentType": {
+                            "type": "string",
+                            "description": "Agent type: planner, coder_fe, coder_be, security, ux_researcher, ui_designer, tester, reviewer, researcher, librarian",
+                            "enum": ["planner", "coder_fe", "coder_be", "security", "ux_researcher", "ui_designer", "tester", "reviewer", "researcher", "librarian"]
+                        },
+                        "task": {
+                            "type": "string",
+                            "description": "Clear, self-contained task description with context, constraints, and expected output"
+                        }
+                    },
+                    "required": ["agentType", "task"]
                 }
             }
         }),

@@ -19,6 +19,7 @@ pub enum ToolName {
     SearchFiles,
     RunCommand,
     WebSearch,
+    DelegateTask,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -133,6 +134,7 @@ impl ToolExecutor {
             ToolName::SearchFiles => self.search_files(&call.input).await,
             ToolName::RunCommand => self.run_command(&call.input).await,
             ToolName::WebSearch => self.web_search(&call.input).await,
+            ToolName::DelegateTask => self.delegate_task(&call.input).await,
         };
 
         match result {
@@ -331,6 +333,21 @@ impl ToolExecutor {
             .map_err(AppError::from)?;
 
         response.text().await.map_err(AppError::from)
+    }
+
+    async fn delegate_task(&self, input: &serde_json::Value) -> AppResult<String> {
+        let agent_type = input["agentType"]
+            .as_str()
+            .ok_or_else(|| AppError::Validation("Missing 'agentType' field".to_string()))?;
+        let task = input["task"]
+            .as_str()
+            .ok_or_else(|| AppError::Validation("Missing 'task' field".to_string()))?;
+
+        // Return a structured response that the orchestrator can parse
+        Ok(format!(
+            "DELEGATION_REQUEST\nagent={}\ntask={}\nstatus=queued",
+            agent_type, task
+        ))
     }
 
     pub fn requires_permission(&self, path: &str) -> bool {

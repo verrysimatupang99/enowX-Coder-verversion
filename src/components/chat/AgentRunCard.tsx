@@ -6,6 +6,7 @@ import { AgentRunWithTools, ToolCall } from '@/types';
 import { ToolExecutionBlock } from './ToolExecutionBlock';
 import { ThinkingBlock } from './ThinkingBlock';
 import { MarkdownCodeBlock } from './MarkdownCodeBlock';
+import { OrchestratorTimeline } from './OrchestratorTimeline';
 import { useSettingsStore } from '@/stores/useSettingsStore';
 import { useAgentStore } from '@/stores/useAgentStore';
 import { Sparkle, CircleNotch, Copy, Check } from '@phosphor-icons/react';
@@ -46,7 +47,7 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
   const liveStream = run.streamingText.trim();
 
   // Get model name from agent config or default provider
-  const { agentConfigs } = useAgentStore();
+  const { agentConfigs, orchestratorState } = useAgentStore();
   const { providers, selectedModelId } = useSettingsStore();
   const agentConfig = agentConfigs.find((c) => c.agentType === run.agentType);
   const modelName = agentConfig?.modelId
@@ -56,6 +57,9 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
 
   const duration = formatDuration(run.startedAt, run.completedAt);
   const isRunning = run.status === 'running';
+
+  // Get orchestrator state for this run
+  const orchestratorData = orchestratorState[run.id];
 
   const events = useMemo<TimelineEventItem[]>(() => {
     const list: TimelineEventItem[] = [];
@@ -128,6 +132,16 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
             </>
           )}
         </div>
+
+        {/* Orchestrator Timeline (A1 agents only) */}
+        {run.agentType === 'A1' && orchestratorData && (
+          <OrchestratorTimeline
+            phase={orchestratorData.phase}
+            delegations={orchestratorData.delegations}
+            aggregate={orchestratorData.aggregate}
+            decisions={orchestratorData.decisions}
+          />
+        )}
 
         {/* Events */}
         <div className="space-y-2">

@@ -321,6 +321,67 @@ export const AppShell: React.FC = () => {
         setPendingPermission(req);
       });
 
+      // Orchestrator event listeners
+      const unlistenOrchestratorPhase = await listen<{
+        agentRunId: string;
+        phase: string;
+        description: string;
+        timestamp: string;
+      }>('orchestrator-phase', (event) => {
+        const { agentRunId, phase, description, timestamp } = event.payload;
+        useAgentStore.getState().setOrchestratorPhase(agentRunId, {
+          phase,
+          description,
+          timestamp,
+        });
+      });
+
+      const unlistenOrchestratorDelegate = await listen<{
+        agentRunId: string;
+        targetAgent: string;
+        task: string;
+        reason: string;
+        subAgentRunId: string;
+        timestamp: string;
+      }>('orchestrator-delegate', (event) => {
+        const { agentRunId, targetAgent, task, reason, subAgentRunId, timestamp } = event.payload;
+        useAgentStore.getState().addOrchestratorDelegation(agentRunId, {
+          targetAgent,
+          task,
+          reason,
+          subAgentRunId,
+          timestamp,
+        });
+      });
+
+      const unlistenOrchestratorAggregate = await listen<{
+        agentRunId: string;
+        resultsCount: number;
+        synthesisStatus: string;
+        timestamp: string;
+      }>('orchestrator-aggregate', (event) => {
+        const { agentRunId, resultsCount, synthesisStatus, timestamp } = event.payload;
+        useAgentStore.getState().setOrchestratorAggregate(agentRunId, {
+          resultsCount,
+          synthesisStatus,
+          timestamp,
+        });
+      });
+
+      const unlistenOrchestratorDecision = await listen<{
+        agentRunId: string;
+        decision: string;
+        reasoning: string;
+        timestamp: string;
+      }>('orchestrator-decision', (event) => {
+        const { agentRunId, decision, reasoning, timestamp } = event.payload;
+        useAgentStore.getState().addOrchestratorDecision(agentRunId, {
+          decision,
+          reasoning,
+          timestamp,
+        });
+      });
+
       localUnlisten.push(
         unlistenChatDone,
         unlistenChatError,
@@ -331,6 +392,10 @@ export const AppShell: React.FC = () => {
         unlistenAgentDone,
         unlistenAgentError,
         unlistenPermission,
+        unlistenOrchestratorPhase,
+        unlistenOrchestratorDelegate,
+        unlistenOrchestratorAggregate,
+        unlistenOrchestratorDecision,
       );
 
       if (cancelled) {
