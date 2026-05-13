@@ -9,7 +9,7 @@ use crate::{
 use super::now_rfc3339;
 
 const AGENT_RUN_SELECT: &str =
-    "id, session_id, agent_type, status, input, output, error, started_at, completed_at, created_at, parent_agent_run_id, project_path";
+    "id, session_id, agent_type, status, input, output, error, started_at, completed_at, created_at, parent_agent_run_id, project_path, orchestrator_timeline";
 const TOOL_CALL_SELECT: &str =
     "id, agent_run_id, tool_name, input, output, status, error, started_at, completed_at, created_at";
 const AGENT_CONFIG_SELECT: &str = "id, agent_type, provider_id, model_id, created_at, updated_at";
@@ -277,4 +277,31 @@ async fn get_tool_call(db: &SqlitePool, id: &str) -> AppResult<Option<ToolCall>>
     .await?;
 
     Ok(tool_call)
+}
+
+pub async fn save_orchestrator_timeline(
+    db: &SqlitePool,
+    agent_run_id: &str,
+    timeline_json: &str,
+) -> AppResult<()> {
+    sqlx::query("UPDATE agent_runs SET orchestrator_timeline = ?1 WHERE id = ?2")
+        .bind(timeline_json)
+        .bind(agent_run_id)
+        .execute(db)
+        .await?;
+    Ok(())
+}
+
+pub async fn load_orchestrator_timeline(
+    db: &SqlitePool,
+    agent_run_id: &str,
+) -> AppResult<Option<String>> {
+    let result: Option<(Option<String>,)> = sqlx::query_as(
+        "SELECT orchestrator_timeline FROM agent_runs WHERE id = ?1"
+    )
+    .bind(agent_run_id)
+    .fetch_optional(db)
+    .await?;
+    
+    Ok(result.and_then(|(timeline,)| timeline))
 }

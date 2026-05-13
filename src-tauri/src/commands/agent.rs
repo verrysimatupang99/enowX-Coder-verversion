@@ -138,3 +138,20 @@ pub async fn agent_permission_response(
     }
     Ok(())
 }
+
+#[tauri::command]
+pub async fn save_orchestrator_timeline(
+    state: State<'_, AppState>,
+    agent_run_id: String,
+    timeline_json: String,
+) -> AppResult<()> {
+    agent_service::save_orchestrator_timeline(state.pool(), &agent_run_id, &timeline_json).await
+}
+
+#[tauri::command]
+pub async fn load_orchestrator_timeline(
+    state: State<'_, AppState>,
+    agent_run_id: String,
+) -> AppResult<Option<String>> {
+    agent_service::load_orchestrator_timeline(state.pool(), &agent_run_id).await
+}

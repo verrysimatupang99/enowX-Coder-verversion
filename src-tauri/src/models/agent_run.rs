@@ -16,4 +16,5 @@ pub struct AgentRun {
     pub created_at: String,
     pub parent_agent_run_id: Option<String>,
     pub project_path: Option<String>,
+    pub orchestrator_timeline: Option<String>,
 }

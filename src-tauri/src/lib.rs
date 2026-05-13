@@ -54,6 +54,8 @@ pub fn run() -> Result<(), AppError> {
             commands::agent::upsert_agent_config,
             commands::agent::list_agent_configs,
             commands::agent::agent_permission_response,
+            commands::agent::save_orchestrator_timeline,
+            commands::agent::load_orchestrator_timeline,
             commands::file::list_files,
             commands::file::read_file_content,
             commands::filesystem::read_directory_tree,
