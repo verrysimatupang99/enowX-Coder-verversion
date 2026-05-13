@@ -1,19 +1,21 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
-import { AgentRunWithTools, ToolCall } from '@/types';
-import { ToolExecutionBlock } from './ToolExecutionBlock';
-import { ThinkingBlock } from './ThinkingBlock';
-import { MarkdownCodeBlock } from './MarkdownCodeBlock';
-import { OrchestratorTimeline } from './OrchestratorTimeline';
-import { useSettingsStore } from '@/stores/useSettingsStore';
-import { useAgentStore } from '@/stores/useAgentStore';
-import { Sparkle, CircleNotch, Copy, Check } from '@phosphor-icons/react';
-import { fixMarkdownTables } from '@/lib/utils';
+import React, { useMemo, useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import { AgentRunWithTools, ToolCall } from "@/types";
+import { ToolExecutionBlock } from "./ToolExecutionBlock";
+import { ThinkingBlock } from "./ThinkingBlock";
+import { MarkdownCodeBlock } from "./MarkdownCodeBlock";
+import { OrchestratorTimeline } from "./OrchestratorTimeline";
+import { useSettingsStore } from "@/stores/useSettingsStore";
+import { useAgentStore } from "@/stores/useAgentStore";
+import { Sparkle, CircleNotch, Copy, Check } from "@phosphor-icons/react";
+import { fixMarkdownTables } from "@/lib/utils";
 
 const markdownComponents = {
-  code: MarkdownCodeBlock as React.ComponentType<React.HTMLAttributes<HTMLElement>>,
+  code: MarkdownCodeBlock as React.ComponentType<
+    React.HTMLAttributes<HTMLElement>
+  >,
   pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
 };
 
@@ -22,13 +24,16 @@ interface AgentRunCardProps {
 }
 
 type TimelineEventItem =
-  | { kind: 'thinking'; key: string; content: string }
-  | { kind: 'tool_execution'; key: string; tool: ToolCall }
-  | { kind: 'tool_failed'; key: string; tool: ToolCall }
-  | { kind: 'result'; key: string; content: string };
+  | { kind: "thinking"; key: string; content: string }
+  | { kind: "tool_execution"; key: string; tool: ToolCall }
+  | { kind: "tool_failed"; key: string; tool: ToolCall }
+  | { kind: "result"; key: string; content: string };
 
 /** Format duration between two ISO timestamps into a human-readable string */
-const formatDuration = (startedAt?: string, completedAt?: string): string | null => {
+const formatDuration = (
+  startedAt?: string,
+  completedAt?: string,
+): string | null => {
   if (!startedAt || !completedAt) return null;
   const ms = new Date(completedAt).getTime() - new Date(startedAt).getTime();
   if (ms < 0) return null;
@@ -47,49 +52,85 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
   const liveStream = run.streamingText.trim();
 
   // Get model name from agent config or default provider
-  const { agentConfigs, orchestratorState } = useAgentStore();
+  const {
+    agentConfigs,
+    orchestratorPhases,
+    orchestratorDelegations,
+    orchestratorAggregates,
+    orchestratorDecisions,
+  } = useAgentStore();
   const { providers, selectedModelId } = useSettingsStore();
   const agentConfig = agentConfigs.find((c) => c.agentType === run.agentType);
-  const modelName = agentConfig?.modelId
-    ?? selectedModelId
-    ?? providers.find((p) => p.isDefault)?.model
-    ?? null;
+  const modelName =
+    agentConfig?.modelId ??
+    selectedModelId ??
+    providers.find((p) => p.isDefault)?.model ??
+    null;
 
   const duration = formatDuration(run.startedAt, run.completedAt);
-  const isRunning = run.status === 'running';
+  const isRunning = run.status === "running";
 
   // Get orchestrator state for this run
-  const orchestratorData = orchestratorState[run.id];
+  const orchestratorData = {
+    phase: orchestratorPhases[run.id],
+    delegations: orchestratorDelegations[run.id] || [],
+    aggregate: orchestratorAggregates[run.id],
+    decisions: orchestratorDecisions[run.id] || [],
+  };
 
   const events = useMemo<TimelineEventItem[]>(() => {
     const list: TimelineEventItem[] = [];
 
     // Thinking blocks (collapsed, from previous iterations)
     normalizedBlocks.forEach((block, i) => {
-      list.push({ kind: 'thinking', key: `${run.id}-thinking-${i}`, content: block });
+      list.push({
+        kind: "thinking",
+        key: `${run.id}-thinking-${i}`,
+        content: block,
+      });
     });
 
     // Tool calls
     run.toolCalls.forEach((tool) => {
-      if (tool.status === 'failed') {
-        list.push({ kind: 'tool_failed', key: `${run.id}-${tool.id}-failed`, tool });
+      if (tool.status === "failed") {
+        list.push({
+          kind: "tool_failed",
+          key: `${run.id}-${tool.id}-failed`,
+          tool,
+        });
       } else {
-        list.push({ kind: 'tool_execution', key: `${run.id}-${tool.id}-exec`, tool });
+        list.push({
+          kind: "tool_execution",
+          key: `${run.id}-${tool.id}-exec`,
+          tool,
+        });
       }
     });
 
     // Live streaming text — show as result (markdown rendered) while generating
-    if (run.status === 'running' && liveStream.length > 0) {
-      list.push({ kind: 'result', key: `${run.id}-streaming`, content: liveStream });
+    if (run.status === "running" && liveStream.length > 0) {
+      list.push({
+        kind: "result",
+        key: `${run.id}-streaming`,
+        content: liveStream,
+      });
     }
 
     // Final output
-    if (run.status === 'completed' && run.output) {
-      list.push({ kind: 'result', key: `${run.id}-result`, content: run.output });
+    if (run.status === "completed" && run.output) {
+      list.push({
+        kind: "result",
+        key: `${run.id}-result`,
+        content: run.output,
+      });
     }
 
-    if (run.status === 'failed' && run.error) {
-      list.push({ kind: 'result', key: `${run.id}-result-failed`, content: run.error });
+    if (run.status === "failed" && run.error) {
+      list.push({
+        kind: "result",
+        key: `${run.id}-result-failed`,
+        content: run.error,
+      });
     }
 
     return list;
@@ -106,7 +147,7 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
-    const text = run.output ?? run.error ?? '';
+    const text = run.output ?? run.error ?? "";
     if (!text) return;
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -128,40 +169,63 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
           {isRunning && (
             <>
               <span className="text-[var(--text-subtle)]">·</span>
-              <CircleNotch size={11} weight="bold" className="text-[var(--accent)] animate-spin" />
+              <CircleNotch
+                size={11}
+                weight="bold"
+                className="text-[var(--accent)] animate-spin"
+              />
             </>
           )}
         </div>
 
-        {/* Orchestrator Timeline (A1 agents only) */}
-        {run.agentType === 'A1' && orchestratorData && (
-          <OrchestratorTimeline
-            phase={orchestratorData.phase}
-            delegations={orchestratorData.delegations}
-            aggregate={orchestratorData.aggregate}
-            decisions={orchestratorData.decisions}
-          />
-        )}
+        {/* Orchestrator Timeline (orchestrator agent only) */}
+        {run.agentType === "orchestrator" &&
+          (orchestratorData.phase ||
+            orchestratorData.delegations.length > 0) && (
+            <OrchestratorTimeline agentRunId={run.id} />
+          )}
 
         {/* Events */}
         <div className="space-y-2">
           {events.map((event) => {
-            if (event.kind === 'thinking') {
-              return <ThinkingBlock key={event.key} content={event.content} defaultCollapsed={true} />;
+            if (event.kind === "thinking") {
+              return (
+                <ThinkingBlock
+                  key={event.key}
+                  content={event.content}
+                  defaultCollapsed={true}
+                />
+              );
             }
 
-            if (event.kind === 'tool_execution') {
-              return <ToolExecutionBlock key={event.key} tool={event.tool} defaultExpanded={false} />;
+            if (event.kind === "tool_execution") {
+              return (
+                <ToolExecutionBlock
+                  key={event.key}
+                  tool={event.tool}
+                  defaultExpanded={false}
+                />
+              );
             }
 
-            if (event.kind === 'tool_failed') {
-              return <ToolExecutionBlock key={event.key} tool={event.tool} defaultExpanded={true} />;
+            if (event.kind === "tool_failed") {
+              return (
+                <ToolExecutionBlock
+                  key={event.key}
+                  tool={event.tool}
+                  defaultExpanded={true}
+                />
+              );
             }
 
             // result (or live streaming)
-            const isLiveStreaming = isRunning && event.key.endsWith('-streaming');
+            const isLiveStreaming =
+              isRunning && event.key.endsWith("-streaming");
             return (
-              <div key={event.key} className="ai-prose ai-prose-readable text-[var(--text)]">
+              <div
+                key={event.key}
+                className="ai-prose ai-prose-readable text-[var(--text)]"
+              >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
@@ -185,8 +249,16 @@ export function AgentRunCard({ run }: AgentRunCardProps) {
               className="flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-[var(--surface-2)] hover:text-[var(--text-muted)] transition-colors"
               title="Copy response"
             >
-              {copied ? <Check size={12} weight="bold" className="text-[var(--accent)]" /> : <Copy size={12} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
+              {copied ? (
+                <Check
+                  size={12}
+                  weight="bold"
+                  className="text-[var(--accent)]"
+                />
+              ) : (
+                <Copy size={12} />
+              )}
+              <span>{copied ? "Copied" : "Copy"}</span>
             </button>
 
             {modelName && (

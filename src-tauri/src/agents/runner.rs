@@ -675,7 +675,18 @@ impl AgentRunner {
         }
 
         let model = ctx.model_id.unwrap_or(&provider.model);
-        let tool_executor = ToolExecutor::new(PathBuf::from(ctx.project_path));
+
+        // Create tool executor with context for delegate_task
+        let tool_executor = if ctx.agent_type == "orchestrator" {
+            ToolExecutor::with_context(
+                PathBuf::from(ctx.project_path),
+                self.app_handle.clone(),
+                ctx.session_id.to_string(),
+                agent_run_id.to_string(),
+            )
+        } else {
+            ToolExecutor::new(PathBuf::from(ctx.project_path))
+        };
 
         let system_content = if ctx.flux_enabled {
             format!(
@@ -721,7 +732,10 @@ impl AgentRunner {
                 self.emit_orchestrator_phase(
                     agent_run_id,
                     "delegation",
-                    &format!("Delegating {} tasks to specialist agents", subagent_tasks.len()),
+                    &format!(
+                        "Delegating {} tasks to specialist agents",
+                        subagent_tasks.len()
+                    ),
                 );
 
                 let parent_id = agent_run_id.to_string();
@@ -828,7 +842,10 @@ impl AgentRunner {
                     self.emit_orchestrator_decision(
                         agent_run_id,
                         "synthesis_complete",
-                        &format!("Integrated {} subagent results into final output", reports.len()),
+                        &format!(
+                            "Integrated {} subagent results into final output",
+                            reports.len()
+                        ),
                     );
                 }
             }

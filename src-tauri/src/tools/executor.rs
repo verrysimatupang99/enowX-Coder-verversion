@@ -5,6 +5,7 @@ use std::time::Duration;
 use globset::{GlobBuilder, GlobSetBuilder};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter, Manager};
 use tokio::process::Command;
 use walkdir::WalkDir;
 
@@ -41,6 +42,9 @@ pub struct ToolResult {
 pub struct ToolExecutor {
     pub sandbox: PathBuf,
     pub command_timeout: Duration,
+    pub app_handle: Option<AppHandle<tauri::Wry>>,
+    pub session_id: Option<String>,
+    pub agent_run_id: Option<String>,
 }
 
 impl ToolExecutor {
@@ -48,6 +52,24 @@ impl ToolExecutor {
         Self {
             sandbox,
             command_timeout: Duration::from_secs(60),
+            app_handle: None,
+            session_id: None,
+            agent_run_id: None,
+        }
+    }
+
+    pub fn with_context(
+        sandbox: PathBuf,
+        app_handle: AppHandle,
+        session_id: String,
+        agent_run_id: String,
+    ) -> Self {
+        Self {
+            sandbox,
+            command_timeout: Duration::from_secs(60),
+            app_handle: Some(app_handle),
+            session_id: Some(session_id),
+            agent_run_id: Some(agent_run_id),
         }
     }
 
@@ -343,10 +365,55 @@ impl ToolExecutor {
             .as_str()
             .ok_or_else(|| AppError::Validation("Missing 'task' field".to_string()))?;
 
-        // Return a structured response that the orchestrator can parse
+        // Check if we have context for spawning
+        let app_handle = self.app_handle.as_ref().ok_or_else(|| {
+            AppError::Validation("delegate_task requires app_handle context".to_string())
+        })?;
+        let session_id = self.session_id.as_ref().ok_or_else(|| {
+            AppError::Validation("delegate_task requires session_id context".to_string())
+        })?;
+        let parent_run_id = self.agent_run_id.as_ref().ok_or_else(|| {
+            AppError::Validation("delegate_task requires agent_run_id context".to_string())
+        })?;
+
+        // Create subagent run in DB
+        let app_state = app_handle.state::<crate::state::AppState>();
+        let pool = app_state.pool();
+        let sub_run_id = uuid::Uuid::new_v4().to_string();
+
+        sqlx::query(
+            r#"
+            INSERT INTO agent_runs (id, session_id, agent_type, task, status, parent_agent_run_id, created_at)
+            VALUES (?, ?, ?, ?, 'running', ?, datetime('now'))
+            "#,
+        )
+        .bind(&sub_run_id)
+        .bind(session_id)
+        .bind(agent_type)
+        .bind(task)
+        .bind(parent_run_id)
+        .execute(pool)
+        .await
+        .map_err(AppError::from)?;
+        // Emit delegation event
+        app_handle
+            .emit(
+                "orchestrator-delegate",
+                serde_json::json!({
+                    "agentRunId": parent_run_id,
+                    "targetAgent": agent_type,
+                    "task": task,
+                    "reason": "Delegated by orchestrator",
+                    "subAgentRunId": sub_run_id,
+                    "timestamp": chrono::Utc::now().to_rfc3339(),
+                }),
+            )
+            .ok();
+
+        // Return structured response with sub-agent run ID
         Ok(format!(
-            "DELEGATION_REQUEST\nagent={}\ntask={}\nstatus=queued",
-            agent_type, task
+            "DELEGATION_CREATED\nsubAgentRunId={}\nagent={}\ntask={}\nstatus=running\n\nNote: Sub-agent execution is queued. The orchestrator should wait for completion or check status.",
+            sub_run_id, agent_type, task
         ))
     }
 
