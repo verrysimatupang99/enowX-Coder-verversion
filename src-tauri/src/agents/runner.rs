@@ -361,6 +361,69 @@ impl AgentRunner {
         self.run_internal(&ctx, &token_sink).await
     }
 
+    // Orchestrator event emitters
+    fn emit_orchestrator_phase(&self, agent_run_id: &str, phase: &str, description: &str) {
+        let _ = self.app_handle.emit(
+            "orchestrator-phase",
+            OrchestratorPhaseEvent {
+                agent_run_id: agent_run_id.to_string(),
+                phase: phase.to_string(),
+                description: description.to_string(),
+                timestamp: now_rfc3339(),
+            },
+        );
+    }
+
+    fn emit_orchestrator_delegate(
+        &self,
+        agent_run_id: &str,
+        target_agent: &str,
+        task: &str,
+        reason: &str,
+        sub_agent_run_id: &str,
+    ) {
+        let _ = self.app_handle.emit(
+            "orchestrator-delegate",
+            OrchestratorDelegateEvent {
+                agent_run_id: agent_run_id.to_string(),
+                target_agent: target_agent.to_string(),
+                task: task.to_string(),
+                reason: reason.to_string(),
+                sub_agent_run_id: sub_agent_run_id.to_string(),
+                timestamp: now_rfc3339(),
+            },
+        );
+    }
+
+    fn emit_orchestrator_aggregate(
+        &self,
+        agent_run_id: &str,
+        results_count: usize,
+        synthesis_status: &str,
+    ) {
+        let _ = self.app_handle.emit(
+            "orchestrator-aggregate",
+            OrchestratorAggregateEvent {
+                agent_run_id: agent_run_id.to_string(),
+                results_count,
+                synthesis_status: synthesis_status.to_string(),
+                timestamp: now_rfc3339(),
+            },
+        );
+    }
+
+    fn emit_orchestrator_decision(&self, agent_run_id: &str, decision: &str, reasoning: &str) {
+        let _ = self.app_handle.emit(
+            "orchestrator-decision",
+            OrchestratorDecisionEvent {
+                agent_run_id: agent_run_id.to_string(),
+                decision: decision.to_string(),
+                reasoning: reasoning.to_string(),
+                timestamp: now_rfc3339(),
+            },
+        );
+    }
+
     async fn run_internal<S: TokenSink + Sync>(
         &self,
         ctx: &InternalRunContext<'_>,
@@ -2211,4 +2274,43 @@ struct AgentPermissionRequestEvent {
     permission_type: String,
     path: String,
     agent_type: String,
+}
+
+// Orchestrator-specific events
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OrchestratorPhaseEvent {
+    agent_run_id: String,
+    phase: String,
+    description: String,
+    timestamp: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OrchestratorDelegateEvent {
+    agent_run_id: String,
+    target_agent: String,
+    task: String,
+    reason: String,
+    sub_agent_run_id: String,
+    timestamp: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OrchestratorAggregateEvent {
+    agent_run_id: String,
+    results_count: usize,
+    synthesis_status: String,
+    timestamp: String,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OrchestratorDecisionEvent {
+    agent_run_id: String,
+    decision: String,
+    reasoning: String,
+    timestamp: String,
 }

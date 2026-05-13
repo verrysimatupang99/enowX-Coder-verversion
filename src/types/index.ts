@@ -129,3 +129,30 @@ export interface PermissionRequest {
   agentType: AgentType;
   agentRunId: string;
 }
+
+// Orchestrator-specific types
+export interface OrchestratorPhase {
+  phase: string;
+  description: string;
+  timestamp: string;
+}
+
+export interface OrchestratorDelegation {
+  targetAgent: string;
+  task: string;
+  reason: string;
+  subAgentRunId: string;
+  timestamp: string;
+}
+
+export interface OrchestratorAggregate {
+  resultsCount: number;
+  synthesisStatus: string;
+  timestamp: string;
+}
+
+export interface OrchestratorDecision {
+  decision: string;
+  reasoning: string;
+  timestamp: string;
+}

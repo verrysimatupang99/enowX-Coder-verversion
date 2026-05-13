@@ -1,11 +1,26 @@
 import { create } from 'zustand';
-import { AgentRunWithTools, AgentConfig, AgentType, PermissionRequest } from '@/types';
+import { 
+  AgentRunWithTools, 
+  AgentConfig, 
+  AgentType, 
+  PermissionRequest,
+  OrchestratorPhase,
+  OrchestratorDelegation,
+  OrchestratorAggregate,
+  OrchestratorDecision
+} from '@/types';
 
 interface AgentState {
   agentRuns: AgentRunWithTools[];
   agentConfigs: AgentConfig[];
   selectedAgentType: AgentType;
   pendingPermission: PermissionRequest | null;
+
+  // Orchestrator-specific state
+  orchestratorPhases: Record<string, OrchestratorPhase>;
+  orchestratorDelegations: Record<string, OrchestratorDelegation[]>;
+  orchestratorAggregates: Record<string, OrchestratorAggregate>;
+  orchestratorDecisions: Record<string, OrchestratorDecision[]>;
 
   setAgentRuns: (runs: AgentRunWithTools[]) => void;
   addAgentRun: (run: AgentRunWithTools) => void;
@@ -19,6 +34,12 @@ interface AgentState {
 
   setSelectedAgentType: (type: AgentType) => void;
   setPendingPermission: (req: PermissionRequest | null) => void;
+
+  // Orchestrator actions
+  setOrchestratorPhase: (agentRunId: string, phase: OrchestratorPhase) => void;
+  addOrchestratorDelegation: (agentRunId: string, delegation: OrchestratorDelegation) => void;
+  setOrchestratorAggregate: (agentRunId: string, aggregate: OrchestratorAggregate) => void;
+  addOrchestratorDecision: (agentRunId: string, decision: OrchestratorDecision) => void;
 }
 
 export const useAgentStore = create<AgentState>((set) => ({
@@ -26,6 +47,12 @@ export const useAgentStore = create<AgentState>((set) => ({
   agentConfigs: [],
   selectedAgentType: 'chat',
   pendingPermission: null,
+
+  // Orchestrator state
+  orchestratorPhases: {},
+  orchestratorDelegations: {},
+  orchestratorAggregates: {},
+  orchestratorDecisions: {},
 
   setAgentRuns: (runs) => set({ agentRuns: runs }),
   addAgentRun: (run) => set((state) => ({ agentRuns: [...state.agentRuns, run] })),
@@ -72,4 +99,28 @@ export const useAgentStore = create<AgentState>((set) => ({
 
   setSelectedAgentType: (type) => set({ selectedAgentType: type }),
   setPendingPermission: (req) => set({ pendingPermission: req }),
+
+  // Orchestrator actions
+  setOrchestratorPhase: (agentRunId, phase) =>
+    set((state) => ({
+      orchestratorPhases: { ...state.orchestratorPhases, [agentRunId]: phase },
+    })),
+  addOrchestratorDelegation: (agentRunId, delegation) =>
+    set((state) => ({
+      orchestratorDelegations: {
+        ...state.orchestratorDelegations,
+        [agentRunId]: [...(state.orchestratorDelegations[agentRunId] || []), delegation],
+      },
+    })),
+  setOrchestratorAggregate: (agentRunId, aggregate) =>
+    set((state) => ({
+      orchestratorAggregates: { ...state.orchestratorAggregates, [agentRunId]: aggregate },
+    })),
+  addOrchestratorDecision: (agentRunId, decision) =>
+    set((state) => ({
+      orchestratorDecisions: {
+        ...state.orchestratorDecisions,
+        [agentRunId]: [...(state.orchestratorDecisions[agentRunId] || []), decision],
+      },
+    })),
 }));
